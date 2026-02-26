@@ -1,0 +1,4 @@
+slack-bolt==1.21.3
+slack-sdk==3.33.4
+anthropic==0.42.0
+httpx==0.28.1

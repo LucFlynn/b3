@@ -1,0 +1,24 @@
+{
+  "name": "@epi/pixel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "EPI tracking pixel – form detection and lead capture",
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c rollup.config.mjs",
+    "dev": "rollup -c rollup.config.mjs --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "rollup": "^4.14.0",
+    "rollup-plugin-gzip": "^4.0.0",
+    "tslib": "^2.6.2",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0",
+    "jsdom": "^24.0.0"
+  }
+}

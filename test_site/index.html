@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acme Digital — Get a Free Quote</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
+    .hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 60px 20px; text-align: center; }
+    .hero h1 { font-size: 2.5rem; margin-bottom: 12px; }
+    .hero p { font-size: 1.1rem; opacity: 0.8; max-width: 600px; margin: 0 auto; }
+    .container { max-width: 600px; margin: -40px auto 40px; padding: 0 20px; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.1); padding: 40px; }
+    .card h2 { margin-bottom: 24px; font-size: 1.4rem; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+    input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; margin-bottom: 16px; font-family: inherit; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: #4a6cf7; box-shadow: 0 0 0 3px rgba(74,108,247,0.1); }
+    textarea { resize: vertical; min-height: 100px; }
+    button { width: 100%; padding: 14px; background: #4a6cf7; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    button:hover { background: #3a5ce5; }
+    .success { display: none; text-align: center; padding: 40px; }
+    .success h2 { color: #22c55e; margin-bottom: 12px; }
+    .badge { display: inline-block; background: #e0e7ff; color: #4a6cf7; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 24px; }
+    .footer { text-align: center; padding: 20px; color: #999; font-size: 0.85rem; }
+    .live-panel { position: fixed; bottom: 0; right: 0; width: 420px; max-height: 50vh; background: #1a1a2e; color: #00ff88; font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 12px; border-top-left-radius: 12px; overflow-y: auto; box-shadow: -4px -4px 20px rgba(0,0,0,0.3); z-index: 9999; }
+    .live-panel-header { padding: 10px 16px; background: rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; }
+    .live-panel-header span { font-weight: 700; color: #fff; }
+    .live-panel-header .dot { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .live-panel-body { padding: 12px 16px; }
+    .log-entry { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .log-time { color: #666; }
+    .log-type { color: #fbbf24; font-weight: 700; }
+    .log-data { color: #a5b4fc; margin-left: 8px; }
+    .minimize-btn { background: none; border: none; color: #666; cursor: pointer; font-size: 16px; padding: 0; width: auto; margin: 0; }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Acme Digital Marketing</h1>
+  <p>Get a free quote for your next campaign. Our team will analyze your needs and get back to you within 24 hours.</p>
+</div>
+
+<div class="container">
+  <div class="card">
+    <span class="badge">Limited Time — Free Audit</span>
+    <h2>Request Your Free Quote</h2>
+
+    <form id="quote-form" action="/submit" method="POST">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="full_name" placeholder="Jane Doe" required>
+
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" placeholder="jane@company.com" required>
+
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567">
+
+      <label for="company">Company</label>
+      <input type="text" id="company" name="company" placeholder="Acme Corp">
+
+      <label for="budget">Monthly Budget</label>
+      <select id="budget" name="budget">
+        <option value="">Select...</option>
+        <option value="1k-5k">$1,000 – $5,000</option>
+        <option value="5k-15k">$5,000 – $15,000</option>
+        <option value="15k+">$15,000+</option>
+      </select>
+
+      <label for="message">Tell us about your project</label>
+      <textarea id="message" name="message" placeholder="We're looking to increase our lead generation..."></textarea>
+
+      <button type="submit">Get My Free Quote</button>
+    </form>
+
+    <div class="success" id="success">
+      <h2>Thank you!</h2>
+      <p>We received your request. Check the EPI panel below to see your lead data in real time.</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  This is a test site for EPI pixel verification. Simulate an ad click:
+  <a href="/?utm_source=google&utm_medium=cpc&utm_campaign=brand_search&gclid=CjwKCAtest_gclid_12345">Google Ads click</a> |
+  <a href="/?utm_source=facebook&utm_medium=paid_social&utm_campaign=lead_gen&fbclid=fb.1.test_fbclid_67890">Meta Ads click</a> |
+  <a href="/?utm_source=newsletter&utm_medium=email">Email link</a> |
+  <a href="/">Direct visit</a>
+</div>
+
+<!-- EPI Live Monitor Panel -->
+<div class="live-panel" id="live-panel">
+  <div class="live-panel-header">
+    <span><span class="dot"></span>EPI Live Monitor</span>
+    <button class="minimize-btn" onclick="togglePanel()">—</button>
+  </div>
+  <div class="live-panel-body" id="log-body">
+    <div class="log-entry"><span class="log-time">waiting</span> <span class="log-data">Pixel loading...</span></div>
+  </div>
+</div>
+
+<script>
+// ── Live monitor: intercept pixel beacons to show what's happening ──
+const logBody = document.getElementById('log-body');
+let panelMinimized = false;
+
+function togglePanel() {
+  panelMinimized = !panelMinimized;
+  document.getElementById('log-body').style.display = panelMinimized ? 'none' : 'block';
+}
+
+function addLog(type, data) {
+  const time = new Date().toLocaleTimeString();
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `<span class="log-time">${time}</span> <span class="log-type">[${type}]</span><br><span class="log-data">${data}</span>`;
+  logBody.insertBefore(entry, logBody.firstChild);
+}
+
+// Monkey-patch sendBeacon to log events
+const origSendBeacon = navigator.sendBeacon.bind(navigator);
+navigator.sendBeacon = function(url, data) {
+  try {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const payload = JSON.parse(reader.result);
+      const eventType = payload.event_type;
+
+      if (eventType === 'pageview') {
+        let info = `page: ${payload.page_url}`;
+        if (payload.gclid) info += ` | gclid: ${payload.gclid}`;
+        if (payload.fbclid) info += ` | fbclid: ${payload.fbclid}`;
+        if (payload.utm_source) info += ` | utm: ${payload.utm_source}/${payload.utm_medium}`;
+        addLog('PAGEVIEW', info);
+      } else if (eventType === 'form_submit') {
+        const fields = payload.form_data ? Object.keys(payload.form_data).join(', ') : 'none';
+        addLog('FORM SUBMIT', `fields: ${fields} | fill_time: ${payload.form_fill_time_ms}ms | honeypot: "${payload.honeypot_value || ''}"`);
+
+        // Now fetch the processed lead from the API after a delay
+        setTimeout(() => fetchLatestLead(), 2000);
+      } else {
+        addLog(eventType.toUpperCase(), JSON.stringify(payload).slice(0, 200));
+      }
+    };
+    reader.readAsText(data);
+  } catch(e) {}
+  return origSendBeacon(url, data);
+};
+
+// Fetch the latest lead from the backend to show processing results
+async function fetchLatestLead() {
+  try {
+    // We need a token — get one from registration or use the one stored
+    let token = localStorage.getItem('epi_monitor_token');
+    if (!token) {
+      addLog('INFO', 'Register at localhost:3000 to see processed lead data in this panel');
+      return;
+    }
+    const resp = await fetch('http://localhost:8000/api/leads?per_page=1', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!resp.ok) return;
+    const leads = await resp.json();
+    if (leads.length > 0) {
+      const l = leads[0];
+      addLog('LEAD PROCESSED',
+        `score: ${l.quality_score}/100 (${l.quality_label})<br>` +
+        `  email: ${l.email_valid} | phone: ${l.phone_valid}<br>` +
+        `  attribution: ${l.attribution_tier} | bot: ${l.is_bot} | dup: ${l.is_duplicate}`
+      );
+    }
+  } catch(e) {}
+}
+
+// Intercept form submit to prevent actual navigation
+document.getElementById('quote-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  // The pixel will have already captured this via its own listener
+  // Show success state
+  setTimeout(() => {
+    this.style.display = 'none';
+    document.getElementById('success').style.display = 'block';
+  }, 500);
+});
+
+addLog('INIT', 'Monitor ready. Watching for pixel events...');
+</script>
+
+<!-- ██ EPI PIXEL — this is what a real customer would paste ██ -->
+<script>PIXEL_ID_PLACEHOLDER</script>
+<script src="http://localhost:8000/pixel/epi.min.js" data-pixel-id="PIXEL_ID_PLACEHOLDER" data-endpoint="http://localhost:8000/api/event" async></script>
+
+</body>
+</html>

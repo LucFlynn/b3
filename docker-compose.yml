@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-epi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-epi_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-epi}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-epi}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mocks:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  mocks:
+    build: ./mocks
+    ports:
+      - "8001:8001"
+    command: uvicorn mock_server:app --host 0.0.0.0 --port 8001 --reload
+    volumes:
+      - ./mocks:/app
+
+  slack_bot:
+    build: ./slack_bot
+    env_file: .env
+    depends_on:
+      - backend
+      - mocks
+    volumes:
+      - ./slack_bot:/app
+    command: python -m app.main
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/src:/app/src
+    command: npm run dev
+
+volumes:
+  pgdata:
