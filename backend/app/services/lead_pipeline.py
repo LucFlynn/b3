@@ -14,6 +14,7 @@ from app.services.phone_validator import validate_phone
 from app.services.bot_detector import detect_bot
 from app.services.lead_scorer import score_lead
 from app.services.attribution import determine_attribution
+from app.services.email_notifier import send_lead_notification
 
 logger = logging.getLogger(__name__)
 
@@ -166,4 +167,7 @@ async def process_lead(
     db.add(lead)
     await db.flush()
     logger.info("Lead processed: id=%s score=%d label=%s", lead.id, quality_score, quality_label)
+
+    await send_lead_notification(lead, site)
+
     return lead

@@ -13,12 +13,20 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 1440
 
+    # Server
+    port: int = 8000
+
     # External services
     mock_server_url: str = "http://mocks:8001"
-    email_validation_url: str = "http://mocks:8001/validate/email"
-    phone_validation_url: str = "http://mocks:8001/validate/phone"
+    email_validation_url: str = ""
+    phone_validation_url: str = ""
     google_ads_api_url: str = "http://mocks:8001/google-ads"
     meta_ads_api_url: str = "http://mocks:8001/meta-ads"
+
+    # Email notifications (Resend)
+    resend_api_key: str = ""
+    notification_email: str = ""
+    notification_from_email: str = "onboarding@resend.dev"
 
     # OAuth
     google_client_id: str = "mock-google-client-id"

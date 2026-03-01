@@ -19,3 +19,4 @@ ruff==0.8.4
 aiosqlite==0.20.0
 email-validator==2.2.0
 bcrypt==4.0.1
+resend==2.23.0

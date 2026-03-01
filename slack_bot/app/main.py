@@ -19,6 +19,8 @@ import asyncio
 import logging
 import os
 import sys
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import threading
 
 from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
 from slack_bolt.async_app import AsyncApp
@@ -41,13 +43,38 @@ def _require_env(name: str) -> str:
     return value
 
 
-async def start() -> None:
-    slack_bot_token = _require_env("SLACK_BOT_TOKEN")
-    slack_app_token = _require_env("SLACK_APP_TOKEN")
-    signing_secret = _require_env("SLACK_SIGNING_SECRET")
+class _HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(b'{"status":"ok","service":"epi-slackbot"}')
 
-    # Validate that other required vars exist early so we fail fast.
-    _require_env("ANTHROPIC_API_KEY")
+    def log_message(self, format, *args):
+        pass
+
+
+def _start_health_server():
+    port = int(os.environ.get("PORT", "8080"))
+    server = HTTPServer(("0.0.0.0", port), _HealthHandler)
+    logger.info("Health server listening on port %d", port)
+    server.serve_forever()
+
+
+async def start() -> None:
+    # Start health server first so Cloud Run sees the port open
+    threading.Thread(target=_start_health_server, daemon=True).start()
+
+    slack_bot_token = os.environ.get("SLACK_BOT_TOKEN", "").strip()
+    slack_app_token = os.environ.get("SLACK_APP_TOKEN", "").strip()
+    signing_secret = os.environ.get("SLACK_SIGNING_SECRET", "").strip()
+    anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+
+    if not all([slack_bot_token, slack_app_token, signing_secret, anthropic_key]) or slack_bot_token == "placeholder":
+        logger.warning("Slack credentials not configured — bot idle, health server running")
+        # Keep alive for Cloud Run health checks
+        while True:
+            await asyncio.sleep(3600)
 
     app = AsyncApp(token=slack_bot_token, signing_secret=signing_secret)
     register_handlers(app)
