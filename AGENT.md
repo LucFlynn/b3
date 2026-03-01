@@ -11,7 +11,10 @@ Client Website (pixel)
        └─ POST /api/event → Cloud Run backend (FastAPI)
               ├─ Pageview → stored in Neon Postgres
               ├─ Form submit → lead pipeline:
-              │     dedup → email/phone regex validation → bot detection
+              │     dedup → email validation (AbstractAPI Email Reputation)
+              │     → phone validation (AbstractAPI Phone Intelligence)
+              │     → IP check (AbstractAPI IP Intelligence — VPN/proxy/datacenter)
+              │     → bot detection (honeypot + fill time + UA + IP signals)
               │     → attribution (UTM/gclid/fbclid) → quality scoring (0-100)
               │     → save lead → email notification (Resend)
               └─ Slack bot (separate Cloud Run service, Socket Mode)
@@ -37,8 +40,9 @@ Client Website (pixel)
 | `backend/app/config.py` | All env var config (pydantic-settings) |
 | `backend/app/services/lead_pipeline.py` | Core pipeline: dedup → validate → score → attribute → notify |
 | `backend/app/services/email_notifier.py` | Resend email notification on new leads |
-| `backend/app/services/email_validator.py` | Regex fallback when no external validation URL |
-| `backend/app/services/phone_validator.py` | Regex fallback when no external validation URL |
+| `backend/app/services/email_validator.py` | AbstractAPI Email Reputation → legacy URL → regex fallback |
+| `backend/app/services/phone_validator.py` | AbstractAPI Phone Intelligence → legacy URL → regex fallback |
+| `backend/app/services/ip_validator.py` | AbstractAPI IP Intelligence — VPN/proxy/tor/datacenter detection |
 | `backend/app/security.py` | Fernet PII encryption, JWT auth, API key auth |
 | `backend/app/routers/event.py` | POST /api/event — pixel ingestion, background processing |
 | `backend/Dockerfile` | Uses `${PORT:-8000}` for Cloud Run compatibility |
@@ -108,7 +112,7 @@ All set on Cloud Run. Secrets in 1Password (`Anthropic API Key`). Key vars:
 - Slack bot Claude client uses hardcoded date logic that sometimes picks wrong year
 - `/api/leads/stats` with date params can 500 — needs investigation
 - Background tasks on Cloud Run require `--no-cpu-throttling` to run after response
-- No real email/phone validation — using regex fallback. To upgrade: sign up for AbstractAPI or ZeroBounce, set `EMAIL_VALIDATION_URL` and `PHONE_VALIDATION_URL` env vars. The validator services already support external HTTP APIs — just needs a URL.
+- Email/phone/IP validation is LIVE via AbstractAPI (Email Reputation, Phone Intelligence, IP Intelligence). Keys set as env vars on Cloud Run. Falls back to regex if API fails.
 - No Google/Meta ad data sync — attribution works via URL params (UTM, gclid, fbclid) only. To enable: need OAuth tokens from client ad accounts, then the scheduler jobs (`pull_google.py`, `pull_meta.py`) will sync spend/click/conversion data for attribution comparison.
 - Frontend dashboard exists in `frontend/` but is not deployed — Slack bot + email is the UI for now.
 - Deploys are manual: docker build + push + gcloud run deploy. See Deployment section above.
