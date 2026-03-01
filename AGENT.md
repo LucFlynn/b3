@@ -108,9 +108,8 @@ All set on Cloud Run. Secrets in 1Password (`Anthropic API Key`). Key vars:
 - Slack bot Claude client uses hardcoded date logic that sometimes picks wrong year
 - `/api/leads/stats` with date params can 500 — needs investigation
 - Background tasks on Cloud Run require `--no-cpu-throttling` to run after response
-- No real email/phone validation service — using regex fallback
-- No Google/Meta ad data sync — attribution works via URL params only
-- Frontend dashboard exists but is not deployed (not needed — Slack bot is the UI)
-- Code is not commented — next agent should add docstrings to services and routers
-- No CI/CD pipeline — deploys are manual docker build + push + gcloud
+- No real email/phone validation — using regex fallback. To upgrade: sign up for AbstractAPI or ZeroBounce, set `EMAIL_VALIDATION_URL` and `PHONE_VALIDATION_URL` env vars. The validator services already support external HTTP APIs — just needs a URL.
+- No Google/Meta ad data sync — attribution works via URL params (UTM, gclid, fbclid) only. To enable: need OAuth tokens from client ad accounts, then the scheduler jobs (`pull_google.py`, `pull_meta.py`) will sync spend/click/conversion data for attribution comparison.
+- Frontend dashboard exists in `frontend/` but is not deployed — Slack bot + email is the UI for now.
+- Deploys are manual: docker build + push + gcloud run deploy. See Deployment section above.
 - Fernet key footgun in security.py: if key is not exactly 44 chars, a random key is silently generated (breaks all existing encrypted data)
