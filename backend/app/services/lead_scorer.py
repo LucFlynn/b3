@@ -7,6 +7,8 @@ def score_lead(
     form_fill_time_ms: int | None,
     has_gclid: bool,
     has_fbclid: bool,
+    is_vpn_or_proxy: bool = False,
+    is_datacenter: bool = False,
 ) -> tuple[int, str]:
     """Returns (score: 0-100, label: verified|likely_real|suspicious|junk)."""
     score = 50  # baseline
@@ -40,6 +42,12 @@ def score_lead(
         score -= 5
     elif phone_valid == "invalid":
         score -= 15
+
+    # IP intelligence
+    if is_datacenter:
+        score -= 25
+    elif is_vpn_or_proxy:
+        score -= 10
 
     # Attribution signals boost
     if has_gclid or has_fbclid:

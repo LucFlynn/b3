@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     phone_validation_url: str = ""
     abstractapi_email_key: str = ""
     abstractapi_phone_key: str = ""
+    abstractapi_ip_key: str = ""
     google_ads_api_url: str = "http://mocks:8001/google-ads"
     meta_ads_api_url: str = "http://mocks:8001/meta-ads"
 

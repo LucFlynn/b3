@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["events"])
 
 
-async def _process_event(event: EventPayload, ip_hash: str):
+async def _process_event(event: EventPayload, client_ip: str, ip_hash: str):
     """Process event asynchronously after returning 202."""
     from app.services.lead_pipeline import process_lead
 
@@ -59,7 +59,7 @@ async def _process_event(event: EventPayload, ip_hash: str):
             await db.flush()
 
             if event.event_type in ("form_submit", "track") and event.form_data:
-                await process_lead(db, site, pageview, event)
+                await process_lead(db, site, pageview, event, client_ip=client_ip)
 
             await db.commit()
         except Exception:
@@ -73,7 +73,9 @@ async def ingest_event(
     request: Request,
     background_tasks: BackgroundTasks,
 ):
-    client_ip = request.client.host if request.client else "unknown"
+    client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or (
+        request.client.host if request.client else "unknown"
+    )
     ip_hash = hash_ip(client_ip)
-    background_tasks.add_task(_process_event, event, ip_hash)
+    background_tasks.add_task(_process_event, event, client_ip, ip_hash)
     return EventResponse(status="accepted")

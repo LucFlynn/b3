@@ -14,6 +14,7 @@ from app.services.phone_validator import validate_phone
 from app.services.bot_detector import detect_bot
 from app.services.lead_scorer import score_lead
 from app.services.attribution import determine_attribution
+from app.services.ip_validator import check_ip
 from app.services.email_notifier import send_lead_notification
 
 logger = logging.getLogger(__name__)
@@ -78,6 +79,7 @@ async def process_lead(
     site: Site,
     pageview: Pageview,
     event: EventPayload,
+    client_ip: str = "",
 ):
     """Full lead processing pipeline: dedup → verify → score → attribute."""
     form_data = event.form_data or {}
@@ -107,12 +109,20 @@ async def process_lead(
     if phone:
         phone_valid = await validate_phone(phone)
 
-    # Step 3: Bot detection
+    # Step 3: Bot detection + IP intelligence
     is_bot, bot_reasons = detect_bot(
         honeypot_value=event.honeypot_value,
         form_fill_time_ms=event.form_fill_time_ms,
         user_agent=event.user_agent,
     )
+    ip_info = await check_ip(client_ip)
+    is_vpn_or_proxy = ip_info.get("is_vpn") or ip_info.get("is_proxy") or ip_info.get("is_tor")
+    is_datacenter = ip_info.get("is_hosting", False)
+    if is_vpn_or_proxy:
+        bot_reasons.append("vpn_or_proxy")
+    if is_datacenter:
+        bot_reasons.append("datacenter_ip")
+        is_bot = True
 
     # Step 4: Attribution
     attribution_tier = determine_attribution(
@@ -133,6 +143,8 @@ async def process_lead(
         form_fill_time_ms=event.form_fill_time_ms,
         has_gclid=bool(event.gclid),
         has_fbclid=bool(event.fbclid),
+        is_vpn_or_proxy=is_vpn_or_proxy,
+        is_datacenter=is_datacenter,
     )
 
     lead = Lead(
