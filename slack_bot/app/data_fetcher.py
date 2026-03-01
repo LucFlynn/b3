@@ -91,6 +91,17 @@ class EPIBackendClient:
         """GET /api/sites — list all sites for the authenticated agency."""
         return await self._get("/api/sites")
 
+    async def get_recent_leads(
+        self,
+        site_id: Optional[str] = None,
+        limit: int = 10,
+    ) -> list[dict[str, Any]]:
+        """GET /api/leads/recent — recent leads with decrypted PII."""
+        return await self._get(
+            "/api/leads/recent",
+            {"site_id": site_id, "limit": limit},
+        )
+
     async def get_me(self) -> dict[str, Any]:
         """GET /api/auth/me — current user / agency info."""
         return await self._get("/api/auth/me")

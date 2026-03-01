@@ -26,6 +26,31 @@ class LeadResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class LeadDetailResponse(BaseModel):
+    id: UUID
+    site_id: UUID
+    visitor_id: str
+    name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    email_valid: Optional[str] = None
+    phone_valid: Optional[str] = None
+    is_bot: bool
+    quality_score: Optional[int] = None
+    quality_label: Optional[str] = None
+    attribution_tier: Optional[str] = None
+    utm_source: Optional[str] = None
+    utm_medium: Optional[str] = None
+    utm_campaign: Optional[str] = None
+    gclid: Optional[str] = None
+    fbclid: Optional[str] = None
+    is_duplicate: bool
+    form_id: Optional[str] = None
+    form_action: Optional[str] = None
+    extra_fields: Optional[dict] = None
+    created_at: datetime
+
+
 class LeadStatsResponse(BaseModel):
     total_leads: int
     verified: int

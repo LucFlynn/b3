@@ -9,8 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models.lead import Lead
 from app.models.user import User
-from app.schemas.lead import LeadResponse, LeadStatsResponse
-from app.security import get_current_user
+from app.schemas.lead import LeadResponse, LeadDetailResponse, LeadStatsResponse
+from app.security import get_current_user, decrypt_pii
 
 router = APIRouter(prefix="/api/leads", tags=["leads"])
 
@@ -46,6 +46,48 @@ async def list_leads(
     q = q.order_by(Lead.created_at.desc()).offset((page - 1) * per_page).limit(per_page)
     result = await db.execute(q)
     return result.scalars().all()
+
+
+@router.get("/recent", response_model=list[LeadDetailResponse])
+async def recent_leads(
+    site_id: Optional[UUID] = None,
+    limit: int = Query(10, ge=1, le=50),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    q = _base_query(user)
+    if site_id:
+        q = q.where(Lead.site_id == site_id)
+    q = q.order_by(Lead.created_at.desc()).limit(limit)
+    result = await db.execute(q)
+    leads = result.scalars().all()
+    return [
+        LeadDetailResponse(
+            id=l.id,
+            site_id=l.site_id,
+            visitor_id=l.visitor_id,
+            name=decrypt_pii(l.name_encrypted) if l.name_encrypted else None,
+            email=decrypt_pii(l.email_encrypted) if l.email_encrypted else None,
+            phone=decrypt_pii(l.phone_encrypted) if l.phone_encrypted else None,
+            email_valid=l.email_valid,
+            phone_valid=l.phone_valid,
+            is_bot=l.is_bot,
+            quality_score=l.quality_score,
+            quality_label=l.quality_label,
+            attribution_tier=l.attribution_tier,
+            utm_source=l.utm_source,
+            utm_medium=l.utm_medium,
+            utm_campaign=l.utm_campaign,
+            gclid=l.gclid,
+            fbclid=l.fbclid,
+            is_duplicate=l.is_duplicate,
+            form_id=l.form_id,
+            form_action=l.form_action,
+            extra_fields=l.extra_fields,
+            created_at=l.created_at,
+        )
+        for l in leads
+    ]
 
 
 @router.get("/stats", response_model=LeadStatsResponse)

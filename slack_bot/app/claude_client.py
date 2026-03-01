@@ -85,6 +85,29 @@ TOOLS: list[dict[str, Any]] = [
         },
     },
     {
+        "name": "get_recent_leads",
+        "description": (
+            "Retrieve the most recent leads with full details including "
+            "name, email, phone, quality score, attribution, and all form fields. "
+            "Use this when the user asks about specific leads, wants contact info, "
+            "or asks 'who submitted a form' / 'what's the latest lead' / 'show me lead details'."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "site_id": {
+                    "type": "string",
+                    "description": "UUID of the site to filter by. Omit for all sites.",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Number of recent leads to return. Default 10, max 50.",
+                },
+            },
+            "required": [],
+        },
+    },
+    {
         "name": "get_sites",
         "description": (
             "List all tracked sites (domains) for the agency. "
@@ -148,6 +171,11 @@ class ClaudeEPIClient:
                 platform=arguments.get("platform"),
                 date_from=arguments.get("date_from"),
                 date_to=arguments.get("date_to"),
+            )
+        if name == "get_recent_leads":
+            return await self._backend.get_recent_leads(
+                site_id=arguments.get("site_id"),
+                limit=arguments.get("limit", 10),
             )
         if name == "get_sites":
             return await self._backend.get_sites()
