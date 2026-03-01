@@ -45,9 +45,10 @@ Client Website (pixel)
 | `backend/app/services/ip_validator.py` | AbstractAPI IP Intelligence — VPN/proxy/tor/datacenter detection |
 | `backend/app/security.py` | Fernet PII encryption, JWT auth, API key auth |
 | `backend/app/routers/event.py` | POST /api/event — pixel ingestion, background processing |
+| `backend/app/routers/leads.py` | GET /api/leads, /api/leads/recent (decrypted PII), /api/leads/stats |
 | `backend/Dockerfile` | Uses `${PORT:-8000}` for Cloud Run compatibility |
 | `slack_bot/app/main.py` | Socket Mode + health server for Cloud Run |
-| `slack_bot/app/claude_client.py` | Claude tool-use agent (3 tools: leads stats, comparison, sites) |
+| `slack_bot/app/claude_client.py` | Claude tool-use agent (4 tools: leads stats, recent leads w/ PII, comparison, sites) |
 | `pixel/src/index.ts` | Pixel entry point, auto-init on script load |
 | `pixel/src/forms.ts` | Form detection + submit interception |
 
