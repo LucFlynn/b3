@@ -54,6 +54,7 @@ class Lead(Base):
     is_duplicate: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Form metadata
+    page_url: Mapped[str | None] = mapped_column(Text)
     form_id: Mapped[str | None] = mapped_column(String(255))
     form_action: Mapped[str | None] = mapped_column(Text)
     extra_fields: Mapped[dict | None] = mapped_column(JSONB)

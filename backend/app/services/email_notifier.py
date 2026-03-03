@@ -87,7 +87,7 @@ async def send_lead_notification(lead: Lead, site: Site) -> None:
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #6b7280;">Page URL</td>
-            <td style="padding: 8px 0; word-break: break-all;">{lead.form_action or '—'}</td>
+            <td style="padding: 8px 0; word-break: break-all;">{lead.page_url or '—'}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #6b7280;">Email Valid</td>

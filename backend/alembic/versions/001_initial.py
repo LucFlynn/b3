@@ -119,6 +119,7 @@ def upgrade() -> None:
         sa.Column("utm_medium", sa.String(255), nullable=True),
         sa.Column("utm_campaign", sa.String(255), nullable=True),
         sa.Column("is_duplicate", sa.Boolean(), nullable=False, server_default="false"),
+        sa.Column("page_url", sa.Text(), nullable=True),
         sa.Column("form_id", sa.String(255), nullable=True),
         sa.Column("form_action", sa.Text(), nullable=True),
         sa.Column("extra_fields", postgresql.JSONB(), nullable=True),

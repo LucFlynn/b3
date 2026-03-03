@@ -21,6 +21,7 @@ class LeadResponse(BaseModel):
     gclid: Optional[str] = None
     fbclid: Optional[str] = None
     is_duplicate: bool
+    page_url: Optional[str] = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -45,6 +46,7 @@ class LeadDetailResponse(BaseModel):
     gclid: Optional[str] = None
     fbclid: Optional[str] = None
     is_duplicate: bool
+    page_url: Optional[str] = None
     form_id: Optional[str] = None
     form_action: Optional[str] = None
     extra_fields: Optional[dict] = None

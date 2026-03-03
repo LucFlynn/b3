@@ -17,7 +17,31 @@ from app.services.attribution import determine_attribution
 from app.services.ip_validator import check_ip
 from app.services.email_notifier import send_lead_notification
 
+from urllib.parse import urlparse, urlencode, parse_qs
+
 logger = logging.getLogger(__name__)
+
+# Query params worth keeping in the displayed page URL
+_MARKETING_PARAMS = {
+    "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term",
+    "gclid", "gbraid", "wbraid", "fbclid", "fbc", "fbp",
+    "msclkid", "ttclid", "twclid", "li_fat_id", "mc_cid", "mc_eid",
+    "hsa_acc", "hsa_cam", "hsa_grp", "hsa_ad", "hsa_src", "hsa_net",
+    "hsa_ver", "hsa_la", "hsa_ol", "hsa_mt", "hsa_kw",
+    "ref", "source", "campaign",
+}
+
+
+def _clean_page_url(raw_url: str) -> str:
+    """Strip non-marketing query params from a page URL."""
+    try:
+        parsed = urlparse(raw_url)
+        qs = parse_qs(parsed.query, keep_blank_values=False)
+        kept = {k: v for k, v in qs.items() if k.lower() in _MARKETING_PARAMS}
+        clean_query = urlencode(kept, doseq=True) if kept else ""
+        return parsed._replace(query=clean_query, fragment="").geturl()
+    except Exception:
+        return raw_url
 
 
 def _extract_field(form_data: dict, field_names: list[str]) -> str | None:
@@ -172,6 +196,7 @@ async def process_lead(
         utm_medium=event.utm_medium,
         utm_campaign=event.utm_campaign,
         is_duplicate=is_duplicate,
+        page_url=_clean_page_url(event.page_url) if event.page_url else None,
         form_id=event.form_id,
         form_action=event.form_action,
         extra_fields={k: v for k, v in form_data.items() if k not in ("email", "phone", "name")},
