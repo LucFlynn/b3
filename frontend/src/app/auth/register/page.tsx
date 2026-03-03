@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [agencyName, setAgencyName] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -19,7 +20,7 @@ export default function RegisterPage() {
     setError("");
     setSubmitting(true);
     try {
-      await register(email, password, agencyName);
+      await register(email, password, agencyName, inviteCode);
       router.push("/onboarding");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Registration failed");
@@ -46,6 +47,24 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label
+                htmlFor="invite-code"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
+                Invite Code
+              </label>
+              <input
+                id="invite-code"
+                type="text"
+                required
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                placeholder="epi-invite-..."
+              />
+            </div>
+
             <div>
               <label
                 htmlFor="agency-name"

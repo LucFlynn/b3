@@ -1,13 +1,16 @@
+import hashlib
 import re
-from uuid import UUID
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.database import get_db
 from app.models.agency import Agency
 from app.models.user import User
+from app.models.invite_code import InviteCode
 from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse, ApiKeyResponse
 from app.security import (
     hash_password,
@@ -26,12 +29,27 @@ def _slugify(name: str) -> str:
     return slug.strip("-")
 
 
+def _hash_invite_code(code: str) -> str:
+    return hashlib.sha256(f"{settings.api_key_salt}:{code}".encode()).hexdigest()
+
+
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
+    # Validate invite code
+    code_hash = _hash_invite_code(req.invite_code)
+    result = await db.execute(select(InviteCode).where(InviteCode.code_hash == code_hash))
+    invite = result.scalar_one_or_none()
+    if not invite:
+        raise HTTPException(status_code=400, detail="Invalid invite code")
+    if invite.used:
+        raise HTTPException(status_code=400, detail="Invite code already used")
+
+    # Check email uniqueness
     existing = await db.execute(select(User).where(User.email == req.email))
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already registered")
 
+    # Create agency + user in same transaction
     agency = Agency(name=req.agency_name, slug=_slugify(req.agency_name))
     db.add(agency)
     await db.flush()
@@ -44,6 +62,11 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
     )
     db.add(user)
     await db.flush()
+
+    # Mark invite as used
+    invite.used = True
+    invite.used_by_agency_id = agency.id
+    invite.used_at = datetime.now(timezone.utc)
 
     token = create_access_token({"sub": str(user.id), "agency_id": str(agency.id)})
     return TokenResponse(access_token=token, agency_id=str(agency.id), user_id=str(user.id))

@@ -17,7 +17,7 @@ export default function AddSitePage() {
     setSubmitting(true);
     try {
       await api.createSite(domain, name);
-      router.push("/onboarding/google");
+      router.push("/onboarding/install-pixel");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to create site");
     } finally {
@@ -28,7 +28,7 @@ export default function AddSitePage() {
   return (
     <div className="rounded-xl bg-white p-8 shadow-lg">
       <h2 className="mb-2 text-xl font-bold text-gray-900">
-        Step 1: Add Your Site
+        Add Your Site
       </h2>
       <p className="mb-6 text-sm text-gray-500">
         Enter the domain and friendly name for the site you want to track.

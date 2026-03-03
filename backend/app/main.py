@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from app.config import settings
 from app.routers import auth, health, event, leads, sites, comparison, jobs
 from app.middleware.rate_limit import RateLimitMiddleware
 from app.jobs.scheduler import start_scheduler
@@ -31,9 +32,10 @@ app = FastAPI(
 )
 
 # CORS
+_origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,14 +1,17 @@
 import pytest
 from httpx import AsyncClient
 
+from tests.conftest import INVITE_RAW
+
 pytestmark = pytest.mark.asyncio
 
 
-async def test_register(client: AsyncClient):
+async def test_register(client: AsyncClient, invite_code):
     resp = await client.post("/api/auth/register", json={
         "email": "new@agency.com",
         "password": "securepass123",
         "agency_name": "New Agency",
+        "invite_code": INVITE_RAW,
     })
     assert resp.status_code == 201
     data = resp.json()
@@ -18,13 +21,36 @@ async def test_register(client: AsyncClient):
     assert data["user_id"]
 
 
-async def test_register_duplicate_email(client: AsyncClient, user):
+async def test_register_duplicate_email(client: AsyncClient, user, invite_code):
     resp = await client.post("/api/auth/register", json={
         "email": "test@example.com",
         "password": "securepass123",
         "agency_name": "Dup Agency",
+        "invite_code": INVITE_RAW,
     })
     assert resp.status_code == 400
+
+
+async def test_register_invalid_invite(client: AsyncClient):
+    resp = await client.post("/api/auth/register", json={
+        "email": "new@agency.com",
+        "password": "securepass123",
+        "agency_name": "New Agency",
+        "invite_code": "epi-invite-does-not-exist",
+    })
+    assert resp.status_code == 400
+    assert "Invalid invite code" in resp.json()["detail"]
+
+
+async def test_register_used_invite(client: AsyncClient, used_invite_code):
+    resp = await client.post("/api/auth/register", json={
+        "email": "new@agency.com",
+        "password": "securepass123",
+        "agency_name": "New Agency",
+        "invite_code": "epi-invite-used",
+    })
+    assert resp.status_code == 400
+    assert "already used" in resp.json()["detail"]
 
 
 async def test_login(client: AsyncClient, user):
@@ -57,12 +83,13 @@ async def test_get_me_no_auth(client: AsyncClient):
     assert resp.status_code == 401
 
 
-async def test_jwt_roundtrip(client: AsyncClient):
-    """JWT round-trip: register → use token → access protected endpoint."""
+async def test_jwt_roundtrip(client: AsyncClient, invite_code):
+    """JWT round-trip: register -> use token -> access protected endpoint."""
     reg = await client.post("/api/auth/register", json={
         "email": "jwt@test.com",
         "password": "pass123",
         "agency_name": "JWT Agency",
+        "invite_code": INVITE_RAW,
     })
     token = reg.json()["access_token"]
     me = await client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})

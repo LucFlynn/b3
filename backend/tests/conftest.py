@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import os
 import uuid
 from datetime import datetime, timezone
@@ -8,11 +9,13 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
+from app.config import settings
 from app.database import Base, get_db
 from app.main import app
 from app.models.agency import Agency
 from app.models.user import User
 from app.models.site import Site
+from app.models.invite_code import InviteCode
 from app.security import hash_password, create_access_token
 
 TEST_DB_URL = "sqlite+aiosqlite://"
@@ -148,3 +151,32 @@ def auth_headers(user: User):
 def auth_headers2(user2: User):
     token = create_access_token({"sub": str(user2.id), "agency_id": str(user2.agency_id)})
     return {"Authorization": f"Bearer {token}"}
+
+
+INVITE_RAW = "epi-invite-test-code-for-testing"
+INVITE_HASH = hashlib.sha256(f"{settings.api_key_salt}:{INVITE_RAW}".encode()).hexdigest()
+
+
+@pytest_asyncio.fixture
+async def invite_code(db_session: AsyncSession):
+    ic = InviteCode(
+        code_hash=INVITE_HASH,
+        label="Test Invite",
+    )
+    db_session.add(ic)
+    await db_session.flush()
+    return ic
+
+
+@pytest_asyncio.fixture
+async def used_invite_code(db_session: AsyncSession, agency: Agency):
+    ic = InviteCode(
+        code_hash=hashlib.sha256(f"{settings.api_key_salt}:epi-invite-used".encode()).hexdigest(),
+        label="Used Invite",
+        used=True,
+        used_by_agency_id=agency.id,
+        used_at=datetime.now(timezone.utc),
+    )
+    db_session.add(ic)
+    await db_session.flush()
+    return ic

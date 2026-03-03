@@ -5,6 +5,7 @@ from app.models.pageview import Pageview
 from app.models.lead import Lead
 from app.models.platform_conversion import PlatformConversion
 from app.models.attribution_comparison import AttributionComparison
+from app.models.invite_code import InviteCode
 
 __all__ = [
     "Agency",
@@ -14,4 +15,5 @@ __all__ = [
     "Lead",
     "PlatformConversion",
     "AttributionComparison",
+    "InviteCode",
 ]

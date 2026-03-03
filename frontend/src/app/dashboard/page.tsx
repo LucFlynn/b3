@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { api, Site } from "@/lib/api";
+import { RequireAuth } from "@/lib/require-auth";
 
 function StatusBadge({
   connected,
@@ -30,28 +31,21 @@ function StatusBadge({
   );
 }
 
-export default function DashboardPage() {
-  const { user, loading, logout } = useAuth();
+function DashboardContent() {
+  const { user, logout } = useAuth();
   const router = useRouter();
   const [sites, setSites] = useState<Site[]>([]);
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/auth/login");
-      return;
-    }
+    api
+      .getSites()
+      .then((data) => setSites(data))
+      .catch(() => {})
+      .finally(() => setFetching(false));
+  }, []);
 
-    if (user) {
-      api
-        .getSites()
-        .then((data) => setSites(data))
-        .catch(() => {})
-        .finally(() => setFetching(false));
-    }
-  }, [user, loading, router]);
-
-  if (loading || fetching) {
+  if (fetching) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
@@ -144,18 +138,6 @@ export default function DashboardPage() {
                       connected={site.pixel_verified}
                       label="Pixel"
                     />
-                    <StatusBadge
-                      connected={site.google_connected}
-                      label="Google"
-                    />
-                    <StatusBadge
-                      connected={site.meta_connected}
-                      label="Meta"
-                    />
-                    <StatusBadge
-                      connected={site.slack_connected}
-                      label="Slack"
-                    />
                     <span className="ml-2 text-xs text-gray-400">
                       {site.leads_count ?? 0} leads
                     </span>
@@ -167,5 +149,13 @@ export default function DashboardPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <RequireAuth>
+      <DashboardContent />
+    </RequireAuth>
   );
 }

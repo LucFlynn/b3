@@ -5,6 +5,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     agency_name: str
+    invite_code: str
 
 
 class LoginRequest(BaseModel):

@@ -47,6 +47,9 @@ class Settings(BaseSettings):
     # Anthropic
     anthropic_api_key: str = "mock-anthropic-api-key"
 
+    # CORS
+    allowed_origins: str = "*"
+
     # Rate limiting
     rate_limit_per_hour: int = 1000
 

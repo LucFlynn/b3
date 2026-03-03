@@ -26,6 +26,7 @@ Client Website (pixel)
 | Component | Platform | URL/Location |
 |-----------|----------|-------------|
 | Backend API | GCP Cloud Run (`epi-platform` project) | `https://epi-backend-146283845133.us-central1.run.app` |
+| Frontend | Vercel (`lucs-projects-ee9262c2/frontend`) | `https://frontend-sand-ten-88.vercel.app` |
 | Slack Bot | GCP Cloud Run (`epi-platform` project) | `https://epi-slackbot-146283845133.us-central1.run.app` |
 | Database | Neon Postgres (org: `org-young-sunset-49678650`) | `ep-patient-flower-aehip8bt.c-2.us-east-2.aws.neon.tech/neondb` |
 | Pixel JS | Served by backend at `/pixel/epi.min.js` | Built from `pixel/` dir via Rollup |
@@ -44,9 +45,14 @@ Client Website (pixel)
 | `backend/app/services/phone_validator.py` | AbstractAPI Phone Intelligence → legacy URL → regex fallback |
 | `backend/app/services/ip_validator.py` | AbstractAPI IP Intelligence — VPN/proxy/tor/datacenter detection |
 | `backend/app/security.py` | Fernet PII encryption, JWT auth, API key auth |
+| `backend/app/models/invite_code.py` | Invite code model — SHA-256 hashed codes for self-serve registration |
+| `backend/app/routers/auth.py` | Register (with invite code validation), login, API key, /me |
 | `backend/app/routers/event.py` | POST /api/event — pixel ingestion, background processing |
 | `backend/app/routers/leads.py` | GET /api/leads, /api/leads/recent (decrypted PII), /api/leads/stats |
 | `backend/Dockerfile` | Uses `${PORT:-8000}` for Cloud Run compatibility |
+| `scripts/generate_invite.py` | CLI to generate invite codes against production DB |
+| `frontend/src/lib/require-auth.tsx` | Auth guard — redirects unauthenticated users to login |
+| `frontend/src/app/onboarding/install-pixel/page.tsx` | Shows pixel snippet from backend, copy button |
 | `slack_bot/app/main.py` | Socket Mode + health server for Cloud Run |
 | `slack_bot/app/claude_client.py` | Claude tool-use agent (4 tools: leads stats, recent leads w/ PII, comparison, sites) |
 | `pixel/src/index.ts` | Pixel entry point, auto-init on script load |
@@ -77,12 +83,25 @@ cp dist/epi.min.js ../backend/pixel_dist/epi.min.js
 # Then rebuild + redeploy backend
 ```
 
+### Frontend
+```bash
+cd frontend
+npx vercel --prod
+```
+Env var `NEXT_PUBLIC_API_URL` is set in `.env.production` and on Vercel.
+
 ### Migrations
 ```bash
 cd backend
-source .venv/bin/activate
 PYTHONPATH=. DATABASE_URL_SYNC="postgresql://neondb_owner:<pass>@ep-patient-flower-aehip8bt.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require" alembic upgrade head
 ```
+
+### Generate Invite Code
+```bash
+cd /path/to/repo
+PYTHONPATH=backend DATABASE_URL_SYNC="postgresql://neondb_owner:<pass>@ep-patient-flower-aehip8bt.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require" API_KEY_SALT="<production-salt>" python3 scripts/generate_invite.py --label "Client Name - Month Year"
+```
+Prints a one-time code like `epi-invite-...`. Give to client. Code is SHA-256 hashed in DB (same salt pattern as API keys).
 
 ## Env Vars (Backend)
 All set on Cloud Run. Secrets in 1Password (`Anthropic API Key`). Key vars:
@@ -91,6 +110,8 @@ All set on Cloud Run. Secrets in 1Password (`Anthropic API Key`). Key vars:
 - `RESEND_API_KEY` — Resend email API key
 - `NOTIFICATION_EMAIL` — where lead emails go
 - `EMAIL_VALIDATION_URL` / `PHONE_VALIDATION_URL` — empty string = use built-in regex fallback
+- `ALLOWED_ORIGINS` — comma-separated CORS origins (default `*`). Set to Vercel domain in production if locking down.
+- `API_KEY_SALT` — used for hashing API keys AND invite codes. Must match between backend and generate_invite.py.
 
 ## Env Vars (Slack Bot)
 - `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`, `SLACK_SIGNING_SECRET` — from Slack app settings
@@ -108,6 +129,16 @@ All set on Cloud Run. Secrets in 1Password (`Anthropic API Key`). Key vars:
 - Email: `luc@lucflynn.com`
 - API Key: `epi_DjEzZdYfOeewQF0e763ibkrs9rCHuXRAX4p4eR9EhtA`
 
+## Self-Serve Onboarding Flow
+Invite-only registration. Flow: Register (invite code) → Add Site → Install Pixel (copy snippet) → Verify (auto-polls) → Dashboard.
+
+- **Invite codes**: Generated via `scripts/generate_invite.py`. SHA-256 hashed with `API_KEY_SALT`. Single-use, marked with `used_by_agency_id` + `used_at` on registration.
+- **Registration**: `POST /api/auth/register` requires `invite_code` field. Validates code, creates agency + user, marks code used — all in one DB transaction.
+- **Onboarding**: 3-step wizard (Add Site → Install Pixel → Verify). Wrapped with `RequireAuth` guard.
+- **Pixel snippet**: Backend generates the correct `<script>` tag via `_pixel_snippet()` in `routers/sites.py`, using `settings.backend_url`. Frontend reads it from `GET /api/sites` response.
+- **Verification**: Verify page auto-polls `GET /api/sites` every 5s. Backend sets `pixel_verified=true` on first event received for that site.
+- **Google/Meta/Slack onboarding steps**: Removed (were stubs). Can be re-added when OAuth integrations are built.
+
 ## Known Issues / TODOs
 - `asyncpg` does not support `sslmode=` param — use `ssl=require` in DATABASE_URL
 - Slack bot Claude client uses hardcoded date logic that sometimes picks wrong year
@@ -115,6 +146,8 @@ All set on Cloud Run. Secrets in 1Password (`Anthropic API Key`). Key vars:
 - Background tasks on Cloud Run require `--no-cpu-throttling` to run after response
 - Email/phone/IP validation is LIVE via AbstractAPI (Email Reputation, Phone Intelligence, IP Intelligence). Keys set as env vars on Cloud Run. Falls back to regex if API fails.
 - No Google/Meta ad data sync — attribution works via URL params (UTM, gclid, fbclid) only. To enable: need OAuth tokens from client ad accounts, then the scheduler jobs (`pull_google.py`, `pull_meta.py`) will sync spend/click/conversion data for attribution comparison.
-- Frontend dashboard exists in `frontend/` but is not deployed — Slack bot + email is the UI for now.
-- Deploys are manual: docker build + push + gcloud run deploy. See Deployment section above.
+- Frontend is deployed on Vercel at `https://frontend-sand-ten-88.vercel.app`. Consider adding a custom domain.
+- Deploys are manual: `gcloud run deploy --source .` for backend, `npx vercel --prod` for frontend. See Deployment section above.
 - Fernet key footgun in security.py: if key is not exactly 44 chars, a random key is silently generated (breaks all existing encrypted data)
+- `ALLOWED_ORIGINS` is set to `*` — tighten to specific Vercel domain when ready
+- `backend_url` config (used for pixel snippet generation) defaults to `http://backend:8000` — set `BACKEND_URL` env var on Cloud Run to the actual Cloud Run URL so pixel snippets point to the right host
