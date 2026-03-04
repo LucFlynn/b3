@@ -120,10 +120,26 @@ All set on Cloud Run. Secrets in 1Password (`Anthropic API Key`). Key vars:
 - `EPI_API_KEY` — backend API key for single-tenant mode
 
 ## Registered Sites
-| Site | Pixel ID | Domain |
-|------|----------|--------|
-| Luc Flynn | `px_JgEFl7EBp0QpXcQn` | lucflynn.com |
-| RCU | `px_f_FdtD80OqAAsmGE` | rochesterchristianuniversity.ubpages.com |
+| Site | Pixel ID | Domain | Verified | Notes |
+|------|----------|--------|----------|-------|
+| Luc Flynn | `px_JgEFl7EBp0QpXcQn` | lucflynn.com | Yes | Test site, 5 test leads |
+| RCU | `px_f_FdtD80OqAAsmGE` | rochesterchristianuniversity.ubpages.com | Yes | 53 leads |
+| Chowan University | `px_R35HF4GyB74nYHgx` | start.chowan.edu | Yes | Pixel installed via GTM (`GTM-WBLFFTL3`). Instapage-hosted. |
+| SM | `px_1goEwIGl9KauCRiX` | signalmesh.io | No | Test entry |
+
+### GTM Pixel Installation
+GTM strips `data-*` attributes from `<script>` tags in Custom HTML. Use this pattern instead:
+```html
+<script>
+(function(){
+  var s = document.createElement('script');
+  s.src = 'https://epi-backend-146283845133.us-central1.run.app/pixel/epi.min.js';
+  s.setAttribute('data-pixel-id', 'PIXEL_ID_HERE');
+  s.async = true;
+  document.head.appendChild(s);
+})();
+</script>
+```
 
 ## Agency Credentials
 - Email: `luc@lucflynn.com`
