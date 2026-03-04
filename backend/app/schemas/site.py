@@ -23,6 +23,7 @@ class SiteResponse(BaseModel):
     pixel_verified: bool
     created_at: datetime
     pixel_snippet: Optional[str] = None
+    leads_count: int = 0
 
     model_config = {"from_attributes": True}
 
