@@ -2,6 +2,7 @@ import logging
 import re
 
 import httpx
+import pybreaker
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from app.config import settings
@@ -12,7 +13,11 @@ _PHONE_RE = re.compile(r"^\+?1?\d{7,15}$")
 
 _RETRYABLE = (httpx.ConnectError, httpx.TimeoutException, httpx.ReadError)
 
+# Circuit breaker: after 5 consecutive failures, stop calling AbstractAPI for 60s
+_phone_breaker = pybreaker.CircuitBreaker(fail_max=5, reset_timeout=60, name="abstractapi_phone")
 
+
+@_phone_breaker
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=0.5, min=0.5, max=4),
@@ -49,8 +54,10 @@ async def validate_phone(phone: str) -> str:
             if line_type in ("fixed_line", "landline"):
                 return "landline"
             return "valid"
+        except pybreaker.CircuitBreakerError:
+            logger.warning("FALLBACK phone validation: circuit breaker OPEN, using regex")
         except Exception:
-            logger.exception("AbstractAPI phone validation failed after retries, falling back")
+            logger.exception("FALLBACK phone validation: AbstractAPI failed after retries, using regex")
 
     # Legacy external URL (mock server / custom service)
     if settings.phone_validation_url:
@@ -64,8 +71,9 @@ async def validate_phone(phone: str) -> str:
                 data = resp.json()
                 return data.get("result", "invalid")
         except Exception:
-            return "unknown"
+            logger.warning("FALLBACK phone validation: legacy URL failed, using regex")
 
     # Regex fallback
     cleaned = re.sub(r"[\s\-().]", "", phone)
+    logger.info("FALLBACK phone validation: using regex")
     return "valid" if _PHONE_RE.match(cleaned) else "invalid"

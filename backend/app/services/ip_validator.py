@@ -1,6 +1,7 @@
 import logging
 
 import httpx
+import pybreaker
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from app.config import settings
@@ -9,7 +10,11 @@ logger = logging.getLogger(__name__)
 
 _RETRYABLE = (httpx.ConnectError, httpx.TimeoutException, httpx.ReadError)
 
+# Circuit breaker: after 5 consecutive failures, stop calling AbstractAPI for 60s
+_ip_breaker = pybreaker.CircuitBreaker(fail_max=5, reset_timeout=60, name="abstractapi_ip")
 
+
+@_ip_breaker
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=0.5, min=0.5, max=4),
@@ -43,6 +48,9 @@ async def check_ip(ip_address: str) -> dict:
             "is_mobile": security.get("is_mobile", False),
             "country": data.get("location", {}).get("country_code", ""),
         }
+    except pybreaker.CircuitBreakerError:
+        logger.warning("FALLBACK IP check: circuit breaker OPEN, skipping")
+        return {}
     except Exception:
-        logger.exception("AbstractAPI IP intelligence failed after retries")
+        logger.exception("FALLBACK IP check: AbstractAPI failed after retries, skipping")
         return {}

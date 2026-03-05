@@ -49,6 +49,9 @@ class Settings(BaseSettings):
     # Anthropic
     anthropic_api_key: str = "mock-anthropic-api-key"
 
+    # Observability
+    sentry_dsn: str = ""
+
     # CORS
     allowed_origins: str = "*"
 

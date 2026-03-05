@@ -1,4 +1,6 @@
+import json
 import logging
+import sys
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -10,12 +12,41 @@ from app.routers import auth, health, event, leads, sites, comparison, jobs
 from app.middleware.rate_limit import RateLimitMiddleware
 from app.jobs.scheduler import start_scheduler
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-)
+
+# ── Structured JSON logging ──
+class JSONFormatter(logging.Formatter):
+    """Outputs one JSON object per line — Cloud Run parses these natively."""
+
+    def format(self, record):
+        log = {
+            "timestamp": self.formatTime(record),
+            "severity": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+        if record.exc_info and record.exc_info[0] is not None:
+            log["exception"] = self.formatException(record.exc_info)
+        return json.dumps(log)
+
+
+_handler = logging.StreamHandler(sys.stdout)
+_handler.setFormatter(JSONFormatter())
+logging.root.handlers = [_handler]
+logging.root.setLevel(logging.INFO)
+
 # Suppress PII in logs
 logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+
+# ── Sentry error tracking ──
+if settings.sentry_dsn:
+    import sentry_sdk
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        traces_sample_rate=0.1,
+        profiles_sample_rate=0.1,
+        environment="production" if settings.is_production else "development",
+    )
+    logging.getLogger(__name__).info("Sentry initialized")
 
 
 @asynccontextmanager

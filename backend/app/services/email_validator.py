@@ -2,6 +2,7 @@ import logging
 import re
 
 import httpx
+import pybreaker
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from app.config import settings
@@ -12,7 +13,11 @@ _EMAIL_RE = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
 _RETRYABLE = (httpx.ConnectError, httpx.TimeoutException, httpx.ReadError)
 
+# Circuit breaker: after 5 consecutive failures, stop calling AbstractAPI for 60s
+_email_breaker = pybreaker.CircuitBreaker(fail_max=5, reset_timeout=60, name="abstractapi_email")
 
+
+@_email_breaker
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=0.5, min=0.5, max=4),
@@ -49,8 +54,10 @@ async def validate_email(email: str) -> str:
             if status == "undeliverable":
                 return "invalid"
             return "unknown"
+        except pybreaker.CircuitBreakerError:
+            logger.warning("FALLBACK email validation: circuit breaker OPEN, using regex")
         except Exception:
-            logger.exception("AbstractAPI email validation failed after retries, falling back")
+            logger.exception("FALLBACK email validation: AbstractAPI failed after retries, using regex")
 
     # Legacy external URL (mock server / custom service)
     if settings.email_validation_url:
@@ -64,7 +71,8 @@ async def validate_email(email: str) -> str:
                 data = resp.json()
                 return data.get("result", "invalid")
         except Exception:
-            return "unknown"
+            logger.warning("FALLBACK email validation: legacy URL failed, using regex")
 
     # Regex fallback
+    logger.info("FALLBACK email validation: using regex for %s", email.split("@")[-1])
     return "valid" if _EMAIL_RE.match(email) else "invalid"
