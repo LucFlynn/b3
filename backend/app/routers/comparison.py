@@ -51,6 +51,7 @@ async def get_comparison(
             epi_junk_leads=r.epi_junk_leads,
             discrepancy_pct=r.discrepancy_pct,
             cost_per_verified_lead=r.cost_per_verified_lead,
+            last_synced=r.computed_at.isoformat() if r.computed_at else None,
         )
         for r in rows
     ]

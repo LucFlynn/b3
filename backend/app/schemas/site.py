@@ -40,5 +40,6 @@ class ComparisonResponse(BaseModel):
     epi_junk_leads: int
     discrepancy_pct: Optional[float] = None
     cost_per_verified_lead: Optional[float] = None
+    last_synced: Optional[str] = None
 
     model_config = {"from_attributes": True}

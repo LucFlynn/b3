@@ -18,8 +18,22 @@ from app.database import get_db
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 bearer_scheme = HTTPBearer(auto_error=False)
 
-# Fernet cipher for PII encryption
-_fernet = Fernet(settings.fernet_key.encode() if len(settings.fernet_key) == 44 else Fernet.generate_key())
+# Fernet cipher for PII encryption — fail hard if key is misconfigured
+def _init_fernet() -> Fernet:
+    key = settings.fernet_key
+    if not key or len(key) != 44:
+        raise RuntimeError(
+            f"FERNET_KEY must be exactly 44 characters (base64-encoded 32-byte key), "
+            f"got {len(key)}. Generate with: "
+            'python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"'
+        )
+    try:
+        return Fernet(key.encode())
+    except Exception as e:
+        raise RuntimeError(f"FERNET_KEY is not valid base64: {e}") from e
+
+
+_fernet = _init_fernet()
 
 
 def hash_password(password: str) -> str:

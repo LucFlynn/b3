@@ -20,6 +20,8 @@ logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Fail fast if production secrets are still dev defaults
+    settings.validate_production_config()
     start_scheduler()
     yield
 
@@ -31,15 +33,27 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS
+# CORS — pixel/event endpoints need open access (any website embeds the pixel),
+# but authenticated endpoints should restrict to known origins.
 _origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+if _origins == ["*"]:
+    # Open CORS — acceptable in early stage when pixel can be on any domain.
+    # Tighten to specific Vercel domain + client domains when ready.
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,  # credentials=True + origins=* is invalid anyway
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 # Rate limiting
 app.add_middleware(RateLimitMiddleware)

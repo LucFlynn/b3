@@ -65,7 +65,7 @@ Client Website (pixel)
 cd backend
 docker build --platform=linux/amd64 -t us-central1-docker.pkg.dev/epi-platform/cloud-run-source-deploy/epi-backend:latest .
 docker push us-central1-docker.pkg.dev/epi-platform/cloud-run-source-deploy/epi-backend:latest
-gcloud run deploy epi-backend --image=us-central1-docker.pkg.dev/epi-platform/cloud-run-source-deploy/epi-backend:latest --region=us-central1 --allow-unauthenticated
+gcloud run deploy epi-backend --image=us-central1-docker.pkg.dev/epi-platform/cloud-run-source-deploy/epi-backend:latest --region=us-central1 --allow-unauthenticated --no-cpu-throttling
 ```
 
 ### Slack Bot
@@ -112,6 +112,10 @@ All set on Cloud Run. Secrets in 1Password (`Anthropic API Key`). Key vars:
 - `EMAIL_VALIDATION_URL` / `PHONE_VALIDATION_URL` — empty string = use built-in regex fallback
 - `ALLOWED_ORIGINS` — comma-separated CORS origins (default `*`). Set to Vercel domain in production if locking down.
 - `API_KEY_SALT` — used for hashing API keys AND invite codes. Must match between backend and generate_invite.py.
+- `GOOGLE_ADS_DEVELOPER_TOKEN` — Google Ads API developer token
+- `GOOGLE_ADS_LOGIN_CUSTOMER_ID` — MCC (manager) customer ID if using manager account
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — Google OAuth app credentials
+- `META_CLIENT_ID` / `META_CLIENT_SECRET` — Meta OAuth app credentials
 
 ## Env Vars (Slack Bot)
 - `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`, `SLACK_SIGNING_SECRET` — from Slack app settings
@@ -159,11 +163,11 @@ Invite-only registration. Flow: Register (invite code) → Add Site → Install 
 - `asyncpg` does not support `sslmode=` param — use `ssl=require` in DATABASE_URL
 - Slack bot Claude client uses hardcoded date logic that sometimes picks wrong year
 - `/api/leads/stats` with date params can 500 — needs investigation
-- Background tasks on Cloud Run require `--no-cpu-throttling` to run after response
-- Email/phone/IP validation is LIVE via AbstractAPI (Email Reputation, Phone Intelligence, IP Intelligence). Keys set as env vars on Cloud Run. Falls back to regex if API fails.
-- No Google/Meta ad data sync — attribution works via URL params (UTM, gclid, fbclid) only. To enable: need OAuth tokens from client ad accounts, then the scheduler jobs (`pull_google.py`, `pull_meta.py`) will sync spend/click/conversion data for attribution comparison.
+- Background tasks on Cloud Run require `--no-cpu-throttling` to run after response — now included in deploy command above
+- Email/phone/IP validation is LIVE via AbstractAPI (Email Reputation, Phone Intelligence, IP Intelligence). Keys set as env vars on Cloud Run. Falls back to regex if API fails. All API calls have tenacity retry (3 attempts, exponential backoff).
+- Google/Meta ad data sync is implemented (`pull_google.py`, `pull_meta.py`) using real APIs. Runs every 6h via APScheduler (3am/9am/3pm/9pm UTC). Requires OAuth tokens on the Agency model + ad account IDs on Sites. First run backfills 7 days. Attribution via URL params (UTM/gclid/fbclid) still works independently.
 - Frontend is deployed on Vercel at `https://frontend-sand-ten-88.vercel.app`. Consider adding a custom domain.
-- Deploys are manual: `gcloud run deploy --source .` for backend, `npx vercel --prod` for frontend. See Deployment section above.
-- Fernet key footgun in security.py: if key is not exactly 44 chars, a random key is silently generated (breaks all existing encrypted data)
+- Deploys are manual: docker build + push + gcloud run deploy. See Deployment section above. Frontend: `npx vercel --prod`.
+- ~~Fernet key footgun~~ FIXED: security.py now crashes on startup if FERNET_KEY is missing or wrong length
 - `ALLOWED_ORIGINS` is set to `*` — tighten to specific Vercel domain when ready
 - `backend_url` config (used for pixel snippet generation) defaults to `http://backend:8000` — set `BACKEND_URL` env var on Cloud Run to the actual Cloud Run URL so pixel snippets point to the right host

@@ -23,8 +23,10 @@ class Settings(BaseSettings):
     abstractapi_email_key: str = ""
     abstractapi_phone_key: str = ""
     abstractapi_ip_key: str = ""
-    google_ads_api_url: str = "http://mocks:8001/google-ads"
-    meta_ads_api_url: str = "http://mocks:8001/meta-ads"
+    google_ads_developer_token: str = ""
+    google_ads_login_customer_id: str = ""
+    google_ads_refresh_token: str = ""
+    meta_ads_access_token: str = ""
 
     # Email notifications (Resend)
     resend_api_key: str = ""
@@ -57,6 +59,35 @@ class Settings(BaseSettings):
     backend_url: str = "http://backend:8000"
 
     model_config = {"env_file": ".env", "extra": "ignore"}
+
+    # ── dangerous defaults that must be overridden in production ──
+    _DANGEROUS_DEFAULTS = {
+        "secret_key": "dev-secret-key-change-in-production",
+        "api_key_salt": "dev-api-key-salt",
+        "fernet_key": "ZmVybmV0LWRldi1rZXktMzItYnl0ZXMtbG9uZw==",
+    }
+
+    @property
+    def is_production(self) -> bool:
+        """True when connected to a known cloud database (e.g. Neon, Supabase, RDS)."""
+        db = self.database_url.lower()
+        _CLOUD_HOSTS = ("neon.tech", "supabase.co", "rds.amazonaws.com", "cloud.google.com")
+        return any(host in db for host in _CLOUD_HOSTS)
+
+    def validate_production_config(self) -> None:
+        """Raise on startup if production DB is used with dev-default secrets."""
+        if not self.is_production:
+            return
+        violations = []
+        for field, default_val in self._DANGEROUS_DEFAULTS.items():
+            if getattr(self, field) == default_val:
+                violations.append(field.upper())
+        if violations:
+            raise RuntimeError(
+                f"PRODUCTION DATABASE detected but these env vars still have "
+                f"dangerous defaults: {', '.join(violations)}. "
+                f"Set real values before deploying."
+            )
 
 
 settings = Settings()

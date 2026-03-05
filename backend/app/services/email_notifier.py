@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timezone
 
 import resend
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from app.config import settings
 from app.models.lead import Lead
@@ -18,6 +19,16 @@ def _quality_color(label: str) -> str:
         "suspicious": "#f59e0b",
         "junk": "#ef4444",
     }.get(label or "", "#6b7280")
+
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=1, max=8),
+    reraise=True,
+)
+def _send_email(payload: dict) -> None:
+    """Send email via Resend with automatic retry on transient failures."""
+    resend.Emails.send(payload)
 
 
 async def send_lead_notification(lead: Lead, site: Site) -> None:
@@ -106,7 +117,7 @@ async def send_lead_notification(lead: Lead, site: Site) -> None:
     """
 
     try:
-        resend.Emails.send({
+        _send_email({
             "from": settings.notification_from_email,
             "to": [settings.notification_email],
             "subject": subject,
@@ -114,4 +125,4 @@ async def send_lead_notification(lead: Lead, site: Site) -> None:
         })
         logger.info("Lead notification sent for lead %s", lead.id)
     except Exception:
-        logger.exception("Failed to send lead notification email")
+        logger.exception("Failed to send lead notification email after retries")
