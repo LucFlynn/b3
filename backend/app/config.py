@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     mock_server_url: str = "http://mocks:8001"
     email_validation_url: str = ""
     phone_validation_url: str = ""
+    ipqs_api_key: str = ""
     abstractapi_email_key: str = ""
     abstractapi_phone_key: str = ""
     abstractapi_ip_key: str = ""
@@ -49,6 +50,16 @@ class Settings(BaseSettings):
     # Anthropic
     anthropic_api_key: str = "mock-anthropic-api-key"
 
+    # Clerk
+    clerk_secret_key: str = ""
+    clerk_publishable_key: str = ""
+    clerk_webhook_secret: str = ""
+
+    # Stripe
+    stripe_secret_key: str = ""
+    stripe_price_id: str = ""
+    stripe_webhook_secret: str = ""
+
     # Observability
     sentry_dsn: str = ""
 
@@ -60,6 +71,7 @@ class Settings(BaseSettings):
 
     # Backend
     backend_url: str = "http://backend:8000"
+    frontend_url: str = "http://localhost:3000"
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

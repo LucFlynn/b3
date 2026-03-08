@@ -28,7 +28,7 @@ def test_bot_detect_clean():
 
 
 def test_score_verified_lead():
-    score, label = score_lead(
+    score, label, _signals = score_lead(
         email_valid="valid", phone_valid="mobile", is_bot=False,
         is_duplicate=False, honeypot_triggered=False,
         form_fill_time_ms=5000, has_gclid=True, has_fbclid=False,
@@ -38,7 +38,7 @@ def test_score_verified_lead():
 
 
 def test_score_junk_lead():
-    score, label = score_lead(
+    score, label, _signals = score_lead(
         email_valid="invalid", phone_valid="invalid", is_bot=True,
         is_duplicate=True, honeypot_triggered=True,
         form_fill_time_ms=100, has_gclid=False, has_fbclid=False,

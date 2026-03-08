@@ -13,6 +13,9 @@ let endpointUrl = "";
 /** The pixel_id extracted from the script tag data attribute. */
 let pixelId = "";
 
+/** Debug mode — logs all events and responses to console. */
+let debugMode = false;
+
 /**
  * Lightweight browser fingerprint — NOT meant for cross-site tracking.
  * Just enough entropy to correlate sessions on the same device.
@@ -37,9 +40,10 @@ function fingerprint(): string {
 /**
  * Configure the beacon module with the endpoint URL and pixel_id.
  */
-export function configure(endpoint: string, id: string): void {
+export function configure(endpoint: string, id: string, debug: boolean = false): void {
   endpointUrl = endpoint;
   pixelId = id;
+  debugMode = debug;
 }
 
 export interface EventData {
@@ -102,9 +106,32 @@ export function sendEvent(data: EventData): void {
   const payload = buildPayload(data);
   const json = JSON.stringify(payload);
 
+  // Debug mode: use fetch so we can inspect the response.
+  if (debugMode) {
+    console.log("[EPI debug] sending:", data.event_type, payload);
+    fetch(endpointUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: json,
+    })
+      .then((r) => {
+        if (r.ok) {
+          console.log("[EPI debug]", data.event_type, "->", r.status, "OK");
+        } else {
+          r.text().then((t) =>
+            console.error("[EPI debug]", data.event_type, "->", r.status, t)
+          );
+        }
+      })
+      .catch((err) => console.error("[EPI debug] network error:", err));
+    return;
+  }
+
   // Try sendBeacon first — works even during page unload.
+  // Use text/plain to avoid CORS preflight (sendBeacon silently fails on preflight).
+  // Backend parses JSON from body regardless of content-type.
   if (typeof navigator.sendBeacon === "function") {
-    const blob = new Blob([json], { type: "application/json" });
+    const blob = new Blob([json], { type: "text/plain" });
     const queued = navigator.sendBeacon(endpointUrl, blob);
     if (queued) return;
   }

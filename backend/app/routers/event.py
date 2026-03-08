@@ -1,7 +1,8 @@
+import json
 import logging
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Request, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, Request, BackgroundTasks
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -95,10 +96,17 @@ async def _process_event(event: EventPayload, client_ip: str, ip_hash: str):
 
 @router.post("/event", response_model=EventResponse, status_code=202)
 async def ingest_event(
-    event: EventPayload,
     request: Request,
     background_tasks: BackgroundTasks,
 ):
+    # sendBeacon sends text/plain to avoid CORS preflight — parse JSON from raw body
+    body = await request.body()
+    try:
+        data = json.loads(body)
+    except (json.JSONDecodeError, ValueError):
+        raise HTTPException(status_code=422, detail="Invalid JSON body")
+    event = EventPayload(**data)
+
     client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or (
         request.client.host if request.client else "unknown"
     )

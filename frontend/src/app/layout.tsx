@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import { AuthProvider } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "EPI Onboarding",
-  description: "EPI agency onboarding platform",
+  title: "EPI — Lead Scoring",
+  description: "First-party lead verification and scoring",
 };
 
 export default function RootLayout({
@@ -13,10 +13,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
-        <AuthProvider>{children}</AuthProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

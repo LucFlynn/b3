@@ -53,35 +53,63 @@ def _extract_field(form_data: dict, field_names: list[str]) -> str | None:
     return None
 
 
-async def _check_duplicate(db: AsyncSession, agency_id, email_hash: str | None, phone_hash: str | None, visitor_id: str, page_url: str) -> bool:
-    """Check for duplicates: same email/phone within 24h, or same visitor+page within 5min."""
+async def _check_duplicate(db: AsyncSession, agency_id, email_hash: str | None, phone_hash: str | None, visitor_id: str, page_url: str) -> tuple[bool, dict]:
+    """Check for duplicates. Returns (is_duplicate, dedup_details)."""
     now = datetime.now(timezone.utc)
 
     # Same email within 24h
     if email_hash:
         cutoff = now - timedelta(hours=24)
-        result = await db.execute(
+        count_result = await db.execute(
             select(func.count()).select_from(Lead).where(
                 Lead.agency_id == agency_id,
                 Lead.email_hash == email_hash,
                 Lead.created_at >= cutoff,
             )
         )
-        if (result.scalar() or 0) > 0:
-            return True
+        count = count_result.scalar() or 0
+        if count > 0:
+            first_result = await db.execute(
+                select(Lead.created_at).where(
+                    Lead.agency_id == agency_id,
+                    Lead.email_hash == email_hash,
+                    Lead.created_at >= cutoff,
+                ).order_by(Lead.created_at.asc()).limit(1)
+            )
+            first_seen = first_result.scalar()
+            return True, {
+                "is_duplicate": True,
+                "reason": "same_email",
+                "first_seen": first_seen.isoformat() if first_seen else None,
+                "count": count + 1,
+            }
 
     # Same phone within 24h
     if phone_hash:
         cutoff = now - timedelta(hours=24)
-        result = await db.execute(
+        count_result = await db.execute(
             select(func.count()).select_from(Lead).where(
                 Lead.agency_id == agency_id,
                 Lead.phone_hash == phone_hash,
                 Lead.created_at >= cutoff,
             )
         )
-        if (result.scalar() or 0) > 0:
-            return True
+        count = count_result.scalar() or 0
+        if count > 0:
+            first_result = await db.execute(
+                select(Lead.created_at).where(
+                    Lead.agency_id == agency_id,
+                    Lead.phone_hash == phone_hash,
+                    Lead.created_at >= cutoff,
+                ).order_by(Lead.created_at.asc()).limit(1)
+            )
+            first_seen = first_result.scalar()
+            return True, {
+                "is_duplicate": True,
+                "reason": "same_phone",
+                "first_seen": first_seen.isoformat() if first_seen else None,
+                "count": count + 1,
+            }
 
     # Same visitor + same page within 5 min
     cutoff = now - timedelta(minutes=5)
@@ -93,9 +121,14 @@ async def _check_duplicate(db: AsyncSession, agency_id, email_hash: str | None, 
         )
     )
     if (result.scalar() or 0) > 0:
-        return True
+        return True, {
+            "is_duplicate": True,
+            "reason": "same_visitor",
+            "first_seen": None,
+            "count": None,
+        }
 
-    return False
+    return False, {"is_duplicate": False}
 
 
 async def process_lead(
@@ -106,6 +139,33 @@ async def process_lead(
     client_ip: str = "",
 ):
     """Full lead processing pipeline: dedup → verify → score → attribute."""
+    # Usage enforcement — check if the site owner has remaining lead quota
+    from app.models.user import User
+    user_result = await db.execute(
+        select(User).where(User.agency_id == site.agency_id)
+    )
+    site_owner = user_result.scalar_one_or_none()
+    if site_owner and site_owner.usage_count >= site_owner.usage_limit:
+        logger.info(
+            "Usage limit reached for agency %s (%d/%d) — lead logged but not scored",
+            site.agency_id, site_owner.usage_count, site_owner.usage_limit,
+        )
+        lead = Lead(
+            site_id=site.id,
+            agency_id=site.agency_id,
+            pageview_id=pageview.id,
+            visitor_id=event.visitor_id,
+            ip_hash=pageview.ip_hash,
+            page_url=event.page_url,
+            form_id=event.form_id,
+            form_action=event.form_action,
+            quality_label="paused",
+            created_at=datetime.now(timezone.utc),
+        )
+        db.add(lead)
+        await db.flush()
+        return lead
+
     form_data = event.form_data or {}
 
     # Extract PII fields using heuristics
@@ -121,7 +181,7 @@ async def process_lead(
     name_encrypted = encrypt_pii(name) if name else None
 
     # Step 1: Dedup check
-    is_duplicate = await _check_duplicate(
+    is_duplicate, dedup_info = await _check_duplicate(
         db, site.agency_id, email_hash, phone_hash, event.visitor_id, event.page_url
     )
 
@@ -157,8 +217,8 @@ async def process_lead(
         referrer=event.referrer,
     )
 
-    # Step 5: Quality scoring
-    quality_score, quality_label = score_lead(
+    # Step 5: Quality scoring (now returns signals)
+    quality_score, quality_label, signals_fired = score_lead(
         email_valid=email_valid,
         phone_valid=phone_valid,
         is_bot=is_bot,
@@ -170,6 +230,45 @@ async def process_lead(
         is_vpn_or_proxy=is_vpn_or_proxy,
         is_datacenter=is_datacenter,
     )
+
+    # Build the full scoring signals blob
+    scoring_signals = {
+        "signals_fired": signals_fired,
+        "checks": {
+            "email": {
+                "status": email_valid,
+                "provided": bool(email),
+            },
+            "phone": {
+                "status": phone_valid,
+                "provided": bool(phone),
+            },
+            "bot": {
+                "is_bot": is_bot,
+                "honeypot": bool(event.honeypot_value),
+                "form_fill_ms": event.form_fill_time_ms,
+                "user_agent_bot": any("bot_user_agent" in r for r in bot_reasons),
+                "reasons": bot_reasons,
+            },
+            "ip": {
+                "vpn": ip_info.get("is_vpn", False),
+                "proxy": ip_info.get("is_proxy", False),
+                "tor": ip_info.get("is_tor", False),
+                "datacenter": ip_info.get("is_hosting", False),
+                "country": ip_info.get("country", ""),
+            },
+            "attribution": {
+                "tier": attribution_tier,
+                "gclid": event.gclid or None,
+                "fbclid": event.fbclid or None,
+                "utm_source": event.utm_source or None,
+                "utm_medium": event.utm_medium or None,
+                "utm_campaign": event.utm_campaign or None,
+                "referrer": event.referrer or None,
+            },
+        },
+        "dedup": dedup_info,
+    }
 
     lead = Lead(
         site_id=site.id,
@@ -200,11 +299,17 @@ async def process_lead(
         form_id=event.form_id,
         form_action=event.form_action,
         extra_fields={k: v for k, v in form_data.items() if k not in ("email", "phone", "name")},
+        scoring_signals=scoring_signals,
     )
     db.add(lead)
     await db.flush()
     logger.info("Lead processed: id=%s score=%d label=%s", lead.id, quality_score, quality_label)
 
     await send_lead_notification(lead, site)
+
+    # Increment usage count
+    if site_owner:
+        site_owner.usage_count += 1
+        db.add(site_owner)
 
     return lead

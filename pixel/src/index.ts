@@ -79,6 +79,19 @@ function discoverEndpoint(): string {
 /**
  * Main initialization routine. Runs once on script load.
  */
+function isDebugMode(): boolean {
+  // Enabled by data-debug attribute on script tag, or ?epi_debug=1 in URL.
+  const scripts = document.querySelectorAll<HTMLScriptElement>("script[data-pixel-id]");
+  for (const s of scripts) {
+    if (s.hasAttribute("data-debug")) return true;
+  }
+  try {
+    return new URLSearchParams(window.location.search).has("epi_debug");
+  } catch {
+    return false;
+  }
+}
+
 function init(): void {
   const pixelId = discoverPixelId();
   if (!pixelId) {
@@ -89,9 +102,14 @@ function init(): void {
   }
 
   const endpoint = discoverEndpoint();
+  const debug = isDebugMode();
 
   // 1. Configure the beacon module.
-  configure(endpoint, pixelId);
+  configure(endpoint, pixelId, debug);
+
+  if (debug) {
+    console.log("[EPI debug] pixel_id:", pixelId, "endpoint:", endpoint);
+  }
 
   // 2. Generate or restore visitor/session identifiers.
   getVisitorId();

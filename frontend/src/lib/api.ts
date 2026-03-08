@@ -1,30 +1,83 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("epi_token");
+export interface Site {
+  id: string;
+  domain: string;
+  name: string;
+  pixel_id: string;
+  pixel_verified: boolean;
+  pixel_snippet?: string;
+  leads_count?: number;
 }
 
-function setToken(token: string): void {
-  localStorage.setItem("epi_token", token);
+export interface ScoringSignal {
+  signal: string;
+  points: number;
+  detail: string;
 }
 
-function clearToken(): void {
-  localStorage.removeItem("epi_token");
+export interface Lead {
+  id: string;
+  site_id: string;
+  visitor_id: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  email_valid?: string;
+  phone_valid?: string;
+  is_bot: boolean;
+  honeypot_triggered?: boolean;
+  form_fill_time_ms?: number;
+  quality_score?: number;
+  quality_label?: string;
+  attribution_tier?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  gclid?: string;
+  fbclid?: string;
+  is_duplicate: boolean;
+  page_url?: string;
+  created_at: string;
+  scoring_signals?: {
+    signals_fired: ScoringSignal[];
+    checks: {
+      email: { status: string | null; provided: boolean };
+      phone: { status: string | null; provided: boolean };
+      bot: { is_bot: boolean; honeypot: boolean; form_fill_ms: number | null; user_agent_bot: boolean; reasons: string[] };
+      ip: { vpn: boolean; proxy: boolean; tor: boolean; datacenter: boolean; country: string };
+      attribution: { tier: string; gclid: string | null; fbclid: string | null; utm_source: string | null; utm_medium: string | null; utm_campaign: string | null; referrer: string | null };
+    };
+    dedup: { is_duplicate: boolean; reason?: string; first_seen?: string; count?: number };
+  };
+}
+
+export interface PixelStatus {
+  pixel_status: "active" | "idle" | "inactive" | "waiting";
+  last_event_at: string | null;
+  page_views_today: number;
+}
+
+export interface UserInfo {
+  id: string;
+  email: string;
+  agency_id: string;
+  role: string;
+  plan: string;
+  usage_count: number;
+  usage_limit: number;
 }
 
 async function request<T>(
   path: string,
+  token: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token = getToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
     ...(options.headers as Record<string, string>),
   };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
 
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
@@ -39,73 +92,38 @@ async function request<T>(
   return res.json();
 }
 
-export interface AuthResponse {
-  access_token: string;
-  token_type: string;
-}
+export function createApi(token: string) {
+  return {
+    getMe: () => request<UserInfo>("/api/auth/me", token),
 
-export interface User {
-  id: string;
-  email: string;
-  agency_id: string;
-  role: string;
-}
-
-export interface Site {
-  id: string;
-  domain: string;
-  name: string;
-  pixel_id: string;
-  pixel_verified: boolean;
-  pixel_snippet?: string;
-  leads_count?: number;
-}
-
-export const api = {
-  register: async (
-    email: string,
-    password: string,
-    agencyName: string,
-    inviteCode: string
-  ): Promise<AuthResponse> => {
-    const data = await request<AuthResponse>("/api/auth/register", {
-      method: "POST",
-      body: JSON.stringify({
-        email,
-        password,
-        agency_name: agencyName,
-        invite_code: inviteCode,
+    createSite: (domain: string, name: string) =>
+      request<Site>("/api/sites", token, {
+        method: "POST",
+        body: JSON.stringify({ domain, name }),
       }),
-    });
-    setToken(data.access_token);
-    return data;
-  },
 
-  login: async (email: string, password: string): Promise<AuthResponse> => {
-    const data = await request<AuthResponse>("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
-    setToken(data.access_token);
-    return data;
-  },
+    getSites: () => request<Site[]>("/api/sites", token),
 
-  getMe: async (): Promise<User> => {
-    return request<User>("/api/auth/me");
-  },
+    getLeads: (params?: { site_id?: string; page?: number; per_page?: number }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.site_id) searchParams.set("site_id", params.site_id);
+      if (params?.page) searchParams.set("page", String(params.page));
+      if (params?.per_page) searchParams.set("per_page", String(params.per_page));
+      const qs = searchParams.toString();
+      return request<Lead[]>(`/api/leads/recent${qs ? `?${qs}` : ""}`, token);
+    },
 
-  createSite: async (domain: string, name: string): Promise<Site> => {
-    return request<Site>("/api/sites", {
-      method: "POST",
-      body: JSON.stringify({ domain, name }),
-    });
-  },
+    getLeadStats: () => request<Record<string, unknown>>("/api/leads/stats", token),
 
-  getSites: async (): Promise<Site[]> => {
-    return request<Site[]>("/api/sites");
-  },
+    createCheckout: () =>
+      request<{ checkout_url: string }>("/api/billing/create-checkout", token, {
+        method: "POST",
+      }),
 
-  getToken,
-  setToken,
-  clearToken,
-};
+    getBillingPortal: () =>
+      request<{ portal_url: string }>("/api/billing/portal", token),
+
+    getPixelStatus: (siteId: string) =>
+      request<PixelStatus>(`/api/sites/${siteId}/pixel-status`, token),
+  };
+}

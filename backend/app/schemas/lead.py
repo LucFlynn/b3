@@ -37,6 +37,8 @@ class LeadDetailResponse(BaseModel):
     email_valid: Optional[str] = None
     phone_valid: Optional[str] = None
     is_bot: bool
+    honeypot_triggered: bool = False
+    form_fill_time_ms: Optional[int] = None
     quality_score: Optional[int] = None
     quality_label: Optional[str] = None
     attribution_tier: Optional[str] = None
@@ -50,6 +52,7 @@ class LeadDetailResponse(BaseModel):
     form_id: Optional[str] = None
     form_action: Optional[str] = None
     extra_fields: Optional[dict] = None
+    scoring_signals: Optional[dict] = None
     created_at: datetime
 
 

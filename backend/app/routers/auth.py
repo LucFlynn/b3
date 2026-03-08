@@ -76,7 +76,7 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
 async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
-    if not user or not verify_password(req.password, user.hashed_password):
+    if not user or not user.hashed_password or not verify_password(req.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token({"sub": str(user.id), "agency_id": str(user.agency_id)})
@@ -101,4 +101,7 @@ async def get_me(user: User = Depends(get_current_user)):
         "email": user.email,
         "agency_id": str(user.agency_id),
         "role": user.role,
+        "plan": user.plan,
+        "usage_count": user.usage_count,
+        "usage_limit": user.usage_limit,
     }

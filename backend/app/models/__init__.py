@@ -6,6 +6,7 @@ from app.models.lead import Lead
 from app.models.platform_conversion import PlatformConversion
 from app.models.attribution_comparison import AttributionComparison
 from app.models.invite_code import InviteCode
+from app.models.delivery_channel import DeliveryChannel
 
 __all__ = [
     "Agency",
@@ -16,4 +17,5 @@ __all__ = [
     "PlatformConversion",
     "AttributionComparison",
     "InviteCode",
+    "DeliveryChannel",
 ]

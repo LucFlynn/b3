@@ -72,6 +72,8 @@ async def recent_leads(
             email_valid=l.email_valid,
             phone_valid=l.phone_valid,
             is_bot=l.is_bot,
+            honeypot_triggered=l.honeypot_triggered,
+            form_fill_time_ms=l.form_fill_time_ms,
             quality_score=l.quality_score,
             quality_label=l.quality_label,
             attribution_tier=l.attribution_tier,
@@ -84,6 +86,7 @@ async def recent_leads(
             form_id=l.form_id,
             form_action=l.form_action,
             extra_fields=l.extra_fields,
+            scoring_signals=l.scoring_signals,
             created_at=l.created_at,
         )
         for l in leads

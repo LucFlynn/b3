@@ -59,5 +59,49 @@ sleep 5
 HEALTH=$(curl -s "https://epi-backend-146283845133.${REGION}.run.app/api/health")
 echo "  Health check: $HEALTH"
 
+# ── Step 6: Smoke test event ingestion ──
 echo ""
-echo "=== Deploy complete ==="
+echo "→ Smoke testing event ingestion..."
+BACKEND="https://epi-backend-146283845133.${REGION}.run.app"
+TEST_PAYLOAD='{"pixel_id":"px_JgEFl7EBp0QpXcQn","event_type":"pageview","visitor_id":"smoke-test","session_id":"smoke-test","page_url":"https://deploy-smoke-test"}'
+FAILURES=0
+
+# Test text/plain (sendBeacon path)
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${BACKEND}/api/event" \
+    -H "Content-Type: text/plain" -d "$TEST_PAYLOAD")
+if [ "$HTTP_CODE" = "202" ]; then
+    echo "  text/plain  -> $HTTP_CODE OK"
+else
+    echo "  text/plain  -> $HTTP_CODE FAIL"
+    FAILURES=$((FAILURES + 1))
+fi
+
+# Test application/json (fetch fallback path)
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${BACKEND}/api/event" \
+    -H "Content-Type: application/json" -d "$TEST_PAYLOAD")
+if [ "$HTTP_CODE" = "202" ]; then
+    echo "  application/json -> $HTTP_CODE OK"
+else
+    echo "  application/json -> $HTTP_CODE FAIL"
+    FAILURES=$((FAILURES + 1))
+fi
+
+# Test malformed body returns 422 (not 500)
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${BACKEND}/api/event" \
+    -H "Content-Type: text/plain" -d "not json")
+if [ "$HTTP_CODE" = "422" ]; then
+    echo "  bad payload  -> $HTTP_CODE OK (expected rejection)"
+else
+    echo "  bad payload  -> $HTTP_CODE FAIL (expected 422)"
+    FAILURES=$((FAILURES + 1))
+fi
+
+if [ "$FAILURES" -gt 0 ]; then
+    echo ""
+    echo "*** SMOKE TEST FAILED — $FAILURES check(s) did not pass ***"
+    echo "*** The deploy succeeded but event ingestion may be broken ***"
+    exit 1
+fi
+
+echo ""
+echo "=== Deploy complete — all checks passed ==="

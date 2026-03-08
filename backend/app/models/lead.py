@@ -58,6 +58,7 @@ class Lead(Base):
     form_id: Mapped[str | None] = mapped_column(String(255))
     form_action: Mapped[str | None] = mapped_column(Text)
     extra_fields: Mapped[dict | None] = mapped_column(JSONB)
+    scoring_signals: Mapped[dict | None] = mapped_column(JSONB)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 

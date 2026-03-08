@@ -1,7 +1,9 @@
 # EPI — Agent Instructions
 
+> **Something broken?** Read [`DEBUGGING.md`](./DEBUGGING.md) — it has quick health checks, log commands, pixel debug mode, common failure modes, and post-deploy verification steps.
+
 ## What This Is
-Lead verification and attribution platform. Pixel on client sites captures pageviews and form submissions, processes them through a scoring pipeline, and delivers notifications via email (Resend) and Slack bot (Claude-powered).
+Self-serve lead verification and attribution platform. Users sign up (Clerk), add their site, install a pixel, and see scored leads in a dashboard. Free tier: 100 leads. Paid tier: Stripe subscription.
 
 ## Architecture
 
@@ -17,6 +19,8 @@ Client Website (pixel)
               │     → bot detection (honeypot + fill time + UA + IP signals)
               │     → attribution (UTM/gclid/fbclid) → quality scoring (0-100)
               │     → save lead → email notification (Resend)
+              │     → usage check (free tier: 100 leads, paid: unlimited)
+              │     → increment usage_count on user
               └─ Slack bot (separate Cloud Run service, Socket Mode)
                     └─ Claude tool-use agent queries backend API
 ```
@@ -149,15 +153,37 @@ GTM strips `data-*` attributes from `<script>` tags in Custom HTML. Use this pat
 - Email: `luc@lucflynn.com`
 - API Key: `epi_DjEzZdYfOeewQF0e763ibkrs9rCHuXRAX4p4eR9EhtA`
 
-## Self-Serve Onboarding Flow
-Invite-only registration. Flow: Register (invite code) → Add Site → Install Pixel (copy snippet) → Verify (auto-polls) → Dashboard.
+## Auth & Billing
 
-- **Invite codes**: Generated via `scripts/generate_invite.py`. SHA-256 hashed with `API_KEY_SALT`. Single-use, marked with `used_by_agency_id` + `used_at` on registration.
-- **Registration**: `POST /api/auth/register` requires `invite_code` field. Validates code, creates agency + user, marks code used — all in one DB transaction.
-- **Onboarding**: 3-step wizard (Add Site → Install Pixel → Verify). Wrapped with `RequireAuth` guard.
+### Auth: Clerk
+- **Sign up / Sign in**: Clerk hosted components at `/sign-in` and `/sign-up`. Email/password + Google OAuth.
+- **Backend auth**: `security.py` verifies Clerk JWTs via JWKS endpoint. Falls back to legacy JWT and API key auth.
+- **Just-in-time user creation**: On first API call with a valid Clerk token, if no user exists, creates User + Agency automatically.
+- **Clerk webhook**: `POST /api/clerk/webhook` handles `user.created` events (backup for JIT creation).
+- **Env vars**: `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `CLERK_WEBHOOK_SECRET`
+
+### Billing: Stripe
+- **Free tier**: 100 leads scored. No time limit. Leads that arrive after limit are logged but NOT scored (`quality_label = "paused"`).
+- **Paid tier**: Stripe Checkout subscription. Usage limit set to 999999 (effectively unlimited).
+- **Routes**: `POST /api/billing/create-checkout`, `GET /api/billing/portal`, `POST /api/billing/webhook`
+- **Webhook events**: `checkout.session.completed` (upgrade), `invoice.payment_failed` (past_due), `customer.subscription.deleted` (downgrade)
+- **Env vars**: `STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID`, `STRIPE_WEBHOOK_SECRET`
+
+### User model additions
+- `clerk_user_id`, `plan` (free/paid/past_due), `usage_count`, `usage_limit`, `stripe_customer_id`, `stripe_subscription_id`
+- `hashed_password` is now nullable (Clerk handles passwords)
+
+## Self-Serve Onboarding Flow
+Open registration via Clerk. Flow: Sign Up → Dashboard (empty, "Set up your first site" CTA) → Add Site → Pixel snippet with live verification.
+
 - **Pixel snippet**: Backend generates the correct `<script>` tag via `_pixel_snippet()` in `routers/sites.py`, using `settings.backend_url`. Frontend reads it from `GET /api/sites` response.
-- **Verification**: Verify page auto-polls `GET /api/sites` every 5s. Backend sets `pixel_verified=true` on first event received for that site.
-- **Google/Meta/Slack onboarding steps**: Removed (were stubs). Can be re-added when OAuth integrations are built.
+- **Pixel verification**: Dashboard polls `GET /api/sites` every 5s when any site is pending. Backend sets `pixel_verified=true` on first event.
+
+## Frontend Dashboard
+Single-page dashboard with 3 tabs: Leads (feed), Setup (sites + snippets), Usage (plan + billing).
+- Uses `@clerk/nextjs` for auth. Middleware protects all routes except `/sign-in` and `/sign-up`.
+- API calls use Clerk session tokens via `useAuth().getToken()`.
+- Usage warning banner shown at 90%+ of free limit.
 
 ## Known Issues / TODOs
 - `asyncpg` does not support `sslmode=` param — use `ssl=require` in DATABASE_URL
