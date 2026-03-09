@@ -65,6 +65,10 @@ function handleFormSubmit(form: HTMLFormElement): void {
   // Don't send events for forms with no meaningful data.
   if (Object.keys(fields).length === 0) return;
 
+  // Require at least an email or phone — submissions without contact info
+  // are likely placeholder/label text from forms that weren't actually filled out.
+  if (!("email" in fields) && !("phone" in fields)) return;
+
   const honeypotValue = getHoneypotValue(form);
   const fillTime = getFormFillTime(form);
 
