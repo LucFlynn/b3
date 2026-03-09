@@ -7,13 +7,34 @@
 
 import { extractFields } from "./fields";
 import { injectHoneypot, getHoneypotValue, getFormFillTime } from "./honeypot";
-import { sendEvent } from "./beacon";
+import { sendEvent, type EventData } from "./beacon";
 
 /** Set of forms we've already attached listeners to (avoid duplicates). */
 const trackedForms = new WeakSet<HTMLFormElement>();
 
 /**
+ * Debounce window (ms) — if Tier 2 (AJAX interception) fires within this
+ * window after Tier 1 (native submit), Tier 1 is cancelled so only the
+ * AJAX payload (which contains the real submitted data) is sent.
+ */
+const TIER1_DEBOUNCE_MS = 800;
+
+/** Pending Tier 1 submission waiting to be sent or cancelled. */
+let pendingTier1: { timer: ReturnType<typeof setTimeout>; data: EventData } | null = null;
+
+/**
+ * Cancel any pending Tier 1 event (called when Tier 2 fires).
+ */
+function cancelPendingTier1(): void {
+  if (pendingTier1) {
+    clearTimeout(pendingTier1.timer);
+    pendingTier1 = null;
+  }
+}
+
+/**
  * Handle a form submission: extract fields, honeypot, timing, then beacon.
+ * Delays sending briefly so Tier 2 (AJAX) can supersede with better data.
  */
 function handleFormSubmit(form: HTMLFormElement): void {
   const fields = extractFields(form);
@@ -24,14 +45,26 @@ function handleFormSubmit(form: HTMLFormElement): void {
   const honeypotValue = getHoneypotValue(form);
   const fillTime = getFormFillTime(form);
 
-  sendEvent({
+  const data: EventData = {
     event_type: "form_submit",
     form_id: form.id || form.getAttribute("name") || undefined,
     form_action: form.action || undefined,
     form_data: fields,
     honeypot_value: honeypotValue,
     form_fill_time_ms: fillTime,
-  });
+  };
+
+  // Cancel any previous pending Tier 1 event.
+  cancelPendingTier1();
+
+  // Delay sending so Tier 2 (AJAX interception) can supersede if it fires.
+  pendingTier1 = {
+    data,
+    timer: setTimeout(() => {
+      sendEvent(data);
+      pendingTier1 = null;
+    }, TIER1_DEBOUNCE_MS),
+  };
 }
 
 /**
@@ -169,6 +202,9 @@ function maybeBeaconAjaxForm(
   );
 
   if (!hasEmail) return;
+
+  // Tier 2 has the real payload — cancel any pending Tier 1 event.
+  cancelPendingTier1();
 
   // Flatten everything to strings for form_data.
   const formData: Record<string, string> = {};
