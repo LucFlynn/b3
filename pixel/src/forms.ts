@@ -19,8 +19,19 @@ const trackedForms = new WeakSet<HTMLFormElement>();
  */
 const TIER1_DEBOUNCE_MS = 800;
 
+/**
+ * Global cooldown (ms) — once a form_submit event is actually sent,
+ * suppress any further form_submit events for this window. Prevents
+ * duplicate leads when a site fires both XHR + fetch, or native submit
+ * + AJAX for the same form submission.
+ */
+const FORM_SUBMIT_COOLDOWN_MS = 3000;
+
 /** Pending Tier 1 submission waiting to be sent or cancelled. */
 let pendingTier1: { timer: ReturnType<typeof setTimeout>; data: EventData } | null = null;
+
+/** Timestamp of the last form_submit event actually sent. */
+let lastFormSubmitSentAt = 0;
 
 /**
  * Cancel any pending Tier 1 event (called when Tier 2 fires).
@@ -30,6 +41,18 @@ function cancelPendingTier1(): void {
     clearTimeout(pendingTier1.timer);
     pendingTier1 = null;
   }
+}
+
+/**
+ * Send a form_submit event with global cooldown dedup.
+ * Returns true if sent, false if suppressed.
+ */
+function sendFormSubmit(data: EventData): boolean {
+  const now = Date.now();
+  if (now - lastFormSubmitSentAt < FORM_SUBMIT_COOLDOWN_MS) return false;
+  lastFormSubmitSentAt = now;
+  sendEvent(data);
+  return true;
 }
 
 /**
@@ -61,7 +84,7 @@ function handleFormSubmit(form: HTMLFormElement): void {
   pendingTier1 = {
     data,
     timer: setTimeout(() => {
-      sendEvent(data);
+      sendFormSubmit(data);
       pendingTier1 = null;
     }, TIER1_DEBOUNCE_MS),
   };
@@ -212,7 +235,7 @@ function maybeBeaconAjaxForm(
     formData[key] = typeof val === "string" ? val : JSON.stringify(val);
   }
 
-  sendEvent({
+  sendFormSubmit({
     event_type: "form_submit",
     form_action: url || undefined,
     form_data: formData,
