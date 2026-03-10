@@ -1,0 +1,79 @@
+name: Spec Compliance Check
+# Runs automatically on every pull request to main
+# Checks that the PR only modifies files listed in the spec
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  spec-compliance:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write  # needed to post comments on the PR
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # need full history for diff
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Get changed files
+        run: |
+          git diff --name-only origin/main...HEAD > /tmp/changed_files.txt
+          echo "=== Changed files ==="
+          cat /tmp/changed_files.txt
+
+      - name: Run spec compliance check
+        id: check
+        run: python .github/scripts/check_spec_compliance.py /tmp/changed_files.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post results to PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let body;
+            try {
+              body = fs.readFileSync('/tmp/spec_compliance_report.md', 'utf8');
+            } catch (e) {
+              body = '⚠️ Spec compliance check could not generate a report. Check the action logs.';
+            }
+            
+            // Find and update existing comment, or create new one
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const marker = '<!-- spec-compliance-check -->';
+            const existing = comments.data.find(c => c.body.includes(marker));
+            
+            const fullBody = marker + '\n' + body;
+            
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: fullBody,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: fullBody,
+              });
+            }
