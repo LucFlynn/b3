@@ -306,8 +306,7 @@ async def process_lead(
     await db.flush()
     logger.info("Lead processed: id=%s score=%d label=%s", lead.id, quality_score, quality_label)
 
-    if not is_duplicate:
-        await send_lead_notification(lead, site)
+    await send_lead_notification(lead, site)
 
     # Increment usage count
     if site_owner:
