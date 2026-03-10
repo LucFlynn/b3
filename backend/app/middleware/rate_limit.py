@@ -42,7 +42,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         # Skip rate limiting for health checks, pixel, and CORS preflight
         path = request.url.path
-        if path in ("/api/health", "/pixel/epi.min.js"):
+        if path in ("/api/health", "/pixel/epi.min.js", "/api/event"):
             return await call_next(request)
         if request.method == "OPTIONS":
             return await call_next(request)
