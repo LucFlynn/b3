@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
-from app.routers import auth, health, event, leads, sites, comparison, jobs, stripe_billing, clerk_webhook, snapshots
+from app.routers import auth, health, event, leads, sites, comparison, jobs, stripe_billing, clerk_webhook
 from app.middleware.rate_limit import RateLimitMiddleware
 from app.jobs.scheduler import start_scheduler
 
@@ -99,7 +99,7 @@ app.include_router(comparison.router)
 app.include_router(jobs.router)
 app.include_router(stripe_billing.router)
 app.include_router(clerk_webhook.router)
-app.include_router(snapshots.router)
+
 
 # Serve pixel JS as static file
 import pathlib
