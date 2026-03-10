@@ -13,10 +13,16 @@ _AUTH_LIMIT_PER_MINUTE = 10
 
 
 def _rate_limited_response(detail: str = "Rate limit exceeded") -> JSONResponse:
-    """Return a proper Response (not an exception) so CORS middleware can add headers."""
+    """Return a 429 with CORS headers baked in, since CORSMiddleware doesn't
+    reliably add headers to responses from inner middleware."""
     return JSONResponse(
         status_code=429,
         content={"detail": detail},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
     )
 
 
