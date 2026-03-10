@@ -1,14 +1,23 @@
 import time
 from collections import defaultdict
 
-from fastapi import Request, HTTPException
+from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
 
 from app.config import settings
 
 # Auth endpoints get much stricter limits (brute-force protection)
 _AUTH_PATHS = {"/api/auth/login", "/api/auth/register"}
 _AUTH_LIMIT_PER_MINUTE = 10
+
+
+def _rate_limited_response(detail: str = "Rate limit exceeded") -> JSONResponse:
+    """Return a proper Response (not an exception) so CORS middleware can add headers."""
+    return JSONResponse(
+        status_code=429,
+        content={"detail": detail},
+    )
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
@@ -45,7 +54,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 t for t in self._auth_requests[client_ip] if now - t < window
             ]
             if len(self._auth_requests[client_ip]) >= _AUTH_LIMIT_PER_MINUTE:
-                raise HTTPException(status_code=429, detail="Too many attempts, try again later")
+                return _rate_limited_response("Too many attempts, try again later")
             self._auth_requests[client_ip].append(now)
 
         # General rate limit
@@ -54,7 +63,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             t for t in self._requests[client_ip] if now - t < window
         ]
         if len(self._requests[client_ip]) >= settings.rate_limit_per_hour:
-            raise HTTPException(status_code=429, detail="Rate limit exceeded")
+            return _rate_limited_response()
         self._requests[client_ip].append(now)
 
         return await call_next(request)

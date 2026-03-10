@@ -67,7 +67,7 @@ class Settings(BaseSettings):
     allowed_origins: str = "*"
 
     # Rate limiting
-    rate_limit_per_hour: int = 1000
+    rate_limit_per_hour: int = 5000
 
     # Backend
     backend_url: str = "http://backend:8000"
