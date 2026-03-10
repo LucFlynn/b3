@@ -25,9 +25,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self._auth_requests: dict[str, list[float]] = defaultdict(list)
 
     async def dispatch(self, request: Request, call_next):
-        # Skip rate limiting for health checks and pixel
+        # Skip rate limiting for health checks, pixel, and CORS preflight
         path = request.url.path
         if path in ("/api/health", "/pixel/epi.min.js"):
+            return await call_next(request)
+        if request.method == "OPTIONS":
             return await call_next(request)
 
         client_ip = (

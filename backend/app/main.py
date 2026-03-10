@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
-from app.routers import auth, health, event, leads, sites, comparison, jobs, stripe_billing, clerk_webhook
+from app.routers import auth, health, event, leads, sites, comparison, jobs, stripe_billing, clerk_webhook, snapshots
 from app.middleware.rate_limit import RateLimitMiddleware
 from app.jobs.scheduler import start_scheduler
 
@@ -64,16 +64,19 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS — pixel/event endpoints need open access (any website embeds the pixel),
-# but authenticated endpoints should restrict to known origins.
+# Middleware order: last added = outermost (runs first).
+# CORS must be outermost so its headers are present even on error responses.
+
+# Rate limiting (innermost — added first)
+app.add_middleware(RateLimitMiddleware)
+
+# CORS (outermost — added last)
 _origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
 if _origins == ["*"]:
-    # Open CORS — acceptable in early stage when pixel can be on any domain.
-    # Tighten to specific Vercel domain + client domains when ready.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
-        allow_credentials=False,  # credentials=True + origins=* is invalid anyway
+        allow_credentials=False,
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["Content-Type", "Authorization"],
     )
@@ -86,9 +89,6 @@ else:
         allow_headers=["*"],
     )
 
-# Rate limiting
-app.add_middleware(RateLimitMiddleware)
-
 # Routers
 app.include_router(health.router)
 app.include_router(auth.router)
@@ -99,6 +99,7 @@ app.include_router(comparison.router)
 app.include_router(jobs.router)
 app.include_router(stripe_billing.router)
 app.include_router(clerk_webhook.router)
+app.include_router(snapshots.router)
 
 # Serve pixel JS as static file
 import pathlib
