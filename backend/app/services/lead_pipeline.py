@@ -185,13 +185,14 @@ async def process_lead(
         db, site.agency_id, email_hash, phone_hash, event.visitor_id, event.page_url
     )
 
-    # Step 2: Validate email & phone
+    # Step 2: Validate email & phone (skip API calls for duplicates)
     email_valid = None
     phone_valid = None
-    if email:
-        email_valid = await validate_email(email)
-    if phone:
-        phone_valid = await validate_phone(phone)
+    if not is_duplicate:
+        if email:
+            email_valid = await validate_email(email)
+        if phone:
+            phone_valid = await validate_phone(phone)
 
     # Step 3: Bot detection + IP intelligence
     is_bot, bot_reasons = detect_bot(
@@ -199,7 +200,7 @@ async def process_lead(
         form_fill_time_ms=event.form_fill_time_ms,
         user_agent=event.user_agent,
     )
-    ip_info = await check_ip(client_ip)
+    ip_info = await check_ip(client_ip) if not is_duplicate else {}
     is_vpn_or_proxy = ip_info.get("is_vpn") or ip_info.get("is_proxy") or ip_info.get("is_tor")
     is_datacenter = ip_info.get("is_hosting", False)
     if is_vpn_or_proxy:
@@ -305,7 +306,8 @@ async def process_lead(
     await db.flush()
     logger.info("Lead processed: id=%s score=%d label=%s", lead.id, quality_score, quality_label)
 
-    await send_lead_notification(lead, site)
+    if not is_duplicate:
+        await send_lead_notification(lead, site)
 
     # Increment usage count
     if site_owner:
