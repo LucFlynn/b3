@@ -1362,7 +1362,7 @@ function GoogleAdsTab({
     setPullMessage(null);
     try {
       const api = await getApi();
-      await api.triggerJob("pull_google_ads");
+      await api.triggerJob("pull_google");
       setPullMessage("Pull triggered — data will update within a few minutes.");
     } catch {
       setPullMessage("Failed to trigger pull. Please try again.");
