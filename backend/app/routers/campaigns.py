@@ -139,8 +139,21 @@ async def campaign_performance(
             total_epi_verified += epi_verified
             total_junk += junk_count
 
-    # Add gclid-only leads (NULL utm_campaign) that weren't already counted
-    if None not in seen_campaigns:
+    # Add gclid-only leads (NULL utm_campaign) as a synthetic row so
+    # the summary cards and table always agree.
+    if None not in seen_campaigns and (gclid_no_campaign["verified"] or gclid_no_campaign["junk"]):
+        campaigns.append(
+            CampaignRow(
+                campaign_name="(gclid — no campaign)",
+                ad_group_name=None,
+                spend=0,
+                clicks=0,
+                google_reported=0,
+                epi_verified=gclid_no_campaign["verified"],
+                junk=gclid_no_campaign["junk"],
+                real_cpl=None,
+            )
+        )
         total_epi_verified += gclid_no_campaign["verified"]
         total_junk += gclid_no_campaign["junk"]
 
