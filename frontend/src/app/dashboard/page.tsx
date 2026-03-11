@@ -523,13 +523,17 @@ function LeadFeed({
                   )}
                   {/* Attribution line */}
                   <div className="mt-0.5 text-xs text-gray-400">
+                  <div className="mt-0.5 text-xs text-gray-400">
                     {lead.gclid ? (
                       <span>Google Ads{lead.utm_campaign ? ` · Campaign: ${lead.utm_campaign}` : ""}{` · Source: ${lead.utm_source || "google"} / ${lead.utm_medium || "cpc"}`}</span>
+                    ) : lead.fbclid ? (
+                      <span>Meta Ads{lead.utm_campaign ? ` · Campaign: ${lead.utm_campaign}` : ""}{lead.utm_source ? ` · Source: ${lead.utm_source} / ${lead.utm_medium || "unknown"}` : ""}</span>
                     ) : lead.utm_source ? (
                       <span>{lead.utm_source} / {lead.utm_medium || "unknown"}{lead.utm_campaign ? ` · Campaign: ${lead.utm_campaign}` : ""}</span>
                     ) : (
                       <span>Direct / No attribution</span>
                     )}
+                  </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0 ml-2">
