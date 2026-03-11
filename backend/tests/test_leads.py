@@ -32,7 +32,25 @@ async def test_list_leads(client: AsyncClient, db_session, site, user, auth_head
     resp = await client.get("/api/leads", headers=auth_headers)
     assert resp.status_code == 200
     data = resp.json()
-    assert len(data) == 5
+    assert data["total"] == 5
+    assert len(data["leads"]) == 5
+    assert data["page"] == 1
+    assert data["per_page"] == 25
+
+
+async def test_leads_pagination(client: AsyncClient, db_session, site, user, auth_headers):
+    await _create_leads(db_session, site.id, site.agency_id, 10)
+    resp = await client.get("/api/leads?per_page=3&page=1", headers=auth_headers)
+    data = resp.json()
+    assert data["total"] == 10
+    assert len(data["leads"]) == 3
+    assert data["page"] == 1
+
+    resp2 = await client.get("/api/leads?per_page=3&page=2", headers=auth_headers)
+    data2 = resp2.json()
+    assert data2["total"] == 10
+    assert len(data2["leads"]) == 3
+    assert data2["page"] == 2
 
 
 async def test_leads_agency_isolation(client: AsyncClient, db_session, site, site_agency2, user, user2, auth_headers, auth_headers2):
@@ -42,18 +60,18 @@ async def test_leads_agency_isolation(client: AsyncClient, db_session, site, sit
 
     # Agency 1 sees only their leads
     resp1 = await client.get("/api/leads", headers=auth_headers)
-    assert len(resp1.json()) == 3
+    assert resp1.json()["total"] == 3
 
     # Agency 2 sees only their leads
     resp2 = await client.get("/api/leads", headers=auth_headers2)
-    assert len(resp2.json()) == 2
+    assert resp2.json()["total"] == 2
 
 
 async def test_leads_filter_quality(client: AsyncClient, db_session, site, user, auth_headers):
     await _create_leads(db_session, site.id, site.agency_id)
     resp = await client.get("/api/leads?quality_label=verified", headers=auth_headers)
     assert resp.status_code == 200
-    for lead in resp.json():
+    for lead in resp.json()["leads"]:
         assert lead["quality_label"] == "verified"
 
 

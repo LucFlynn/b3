@@ -68,6 +68,13 @@ class LeadStatsResponse(BaseModel):
     avg_quality_score: Optional[float] = None
 
 
+class PaginatedLeadResponse(BaseModel):
+    leads: list[LeadDetailResponse]
+    total: int
+    page: int
+    per_page: int
+
+
 class LeadFilters(BaseModel):
     site_id: Optional[UUID] = None
     quality_label: Optional[str] = None

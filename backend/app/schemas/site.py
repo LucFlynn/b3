@@ -12,6 +12,11 @@ class SiteCreate(BaseModel):
     meta_ads_account_id: Optional[str] = None
 
 
+class SiteUpdate(BaseModel):
+    google_ads_customer_id: Optional[str] = None
+    meta_ads_account_id: Optional[str] = None
+
+
 class SiteResponse(BaseModel):
     id: UUID
     agency_id: UUID
