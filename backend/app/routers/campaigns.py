@@ -115,7 +115,7 @@ async def campaign_performance(
         lead_data = lead_map.get(row.campaign_name, {"verified": 0, "junk": 0})
         epi_verified = lead_data["verified"]
         junk_count = lead_data["junk"]
-        real_cpl = round(spend / epi_verified, 2) if epi_verified > 0 else None
+        real_cpl = round(spend / epi_verified, 2) if epi_verified > 0 and row.campaign_name not in seen_campaigns else None
 
         campaigns.append(
             CampaignRow(
