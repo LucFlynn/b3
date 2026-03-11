@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select, func, case
+from sqlalchemy import select, func, case, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -47,8 +47,26 @@ async def campaign_performance(
     pc_result = await db.execute(pc_q)
     pc_rows = pc_result.all()
 
-    # Leads grouped by utm_campaign for EPI verified/junk counts
+    # Collect all campaign names from platform data
+    campaign_names = {row.campaign_name for row in pc_rows if row.campaign_name}
+
+    # Leads matched to Google Ads campaigns:
+    # - via utm_campaign matching a known campaign name, OR
+    # - via gclid being present (definitive Google Ads attribution)
+    # Group by utm_campaign so we can map back to campaign rows.
+    # Leads with gclid but no utm_campaign go into a NULL bucket.
     cutoff_dt = datetime(cutoff.year, cutoff.month, cutoff.day, tzinfo=timezone.utc)
+    lead_filters = [
+        Lead.agency_id == user.agency_id,
+        Lead.created_at >= cutoff_dt,
+        or_(
+            Lead.utm_campaign.in_(campaign_names) if campaign_names else False,
+            Lead.gclid.isnot(None),
+        ),
+    ]
+    if site_id:
+        lead_filters.append(Lead.site_id == site_id)
+
     lead_q = (
         select(
             Lead.utm_campaign,
@@ -65,37 +83,38 @@ async def campaign_performance(
                 )
             ).label("junk"),
         )
-        .where(
-            Lead.agency_id == user.agency_id,
-            Lead.created_at >= cutoff_dt,
-        )
+        .where(*lead_filters)
         .group_by(Lead.utm_campaign)
     )
-    if site_id:
-        lead_q = lead_q.where(Lead.site_id == site_id)
 
     lead_result = await db.execute(lead_q)
-    lead_map = {}
+    lead_map: dict[str | None, dict[str, int]] = {}
     for row in lead_result.all():
         lead_map[row.utm_campaign] = {
-            "verified": row.verified or 0,
-            "junk": row.junk or 0,
+            "verified": int(row.verified or 0),
+            "junk": int(row.junk or 0),
         }
 
-    # Build campaign rows
+    # Leads with gclid but NULL utm_campaign — attribute to "google_ads" generically
+    gclid_no_campaign = lead_map.get(None, {"verified": 0, "junk": 0})
+
+    # Build campaign rows; track seen campaigns to avoid double-counting EPI totals
     campaigns = []
     total_spend = 0.0
     total_google_reported = 0
     total_epi_verified = 0
     total_junk = 0
+    seen_campaigns: set[str | None] = set()
 
     for row in pc_rows:
         spend = float(row.spend or 0)
         clicks = int(row.clicks or 0)
         google_reported = int(row.google_reported or 0)
+
+        # Get EPI data for this campaign
         lead_data = lead_map.get(row.campaign_name, {"verified": 0, "junk": 0})
-        epi_verified = int(lead_data["verified"])
-        junk = int(lead_data["junk"])
+        epi_verified = lead_data["verified"]
+        junk_count = lead_data["junk"]
         real_cpl = round(spend / epi_verified, 2) if epi_verified > 0 else None
 
         campaigns.append(
@@ -106,15 +125,24 @@ async def campaign_performance(
                 clicks=clicks,
                 google_reported=google_reported,
                 epi_verified=epi_verified,
-                junk=junk,
+                junk=junk_count,
                 real_cpl=real_cpl,
             )
         )
 
         total_spend += spend
         total_google_reported += google_reported
-        total_epi_verified += epi_verified
-        total_junk += junk
+
+        # Only count each campaign's EPI numbers once for totals
+        if row.campaign_name not in seen_campaigns:
+            seen_campaigns.add(row.campaign_name)
+            total_epi_verified += epi_verified
+            total_junk += junk_count
+
+    # Add gclid-only leads (NULL utm_campaign) that weren't already counted
+    if None not in seen_campaigns:
+        total_epi_verified += gclid_no_campaign["verified"]
+        total_junk += gclid_no_campaign["junk"]
 
     discrepancy_pct = None
     if total_google_reported > 0:

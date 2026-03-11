@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { UserButton } from "@clerk/nextjs";
 import { useApi } from "@/lib/use-api";
-import type { Site, Lead, UserInfo, ScoringSignal, PixelStatus, GoogleAdsConnection, MetaAdsConnection, SlackConnection, PaginatedLeads, CampaignPerformance } from "@/lib/api";
+import type { Site, Lead, UserInfo, ScoringSignal, PixelStatus, GoogleAdsConnection, MetaAdsConnection, SlackConnection, PaginatedLeads, CampaignPerformance, LeadStats } from "@/lib/api";
 
 type Tab = "leads" | "setup" | "usage" | "google_ads";
 
@@ -378,20 +378,16 @@ function LeadDetail({ lead, onClose }: { lead: Lead; onClose: () => void }) {
 
 // ── Stats Bar ──
 
-function StatsBar({ leads }: { leads: Lead[] }) {
-  const total = leads.length;
-  const verified = leads.filter((l) => l.quality_label === "verified").length;
-  const likely = leads.filter((l) => l.quality_label === "likely_real").length;
-  const suspicious = leads.filter((l) => l.quality_label === "suspicious").length;
-  const junk = leads.filter((l) => l.quality_label === "junk").length;
+function StatsBar({ stats }: { stats: LeadStats | null }) {
+  if (!stats) return null;
 
   return (
     <div className="flex items-center gap-3 px-4 py-2 text-xs text-gray-500 border-b border-gray-100 flex-wrap">
-      <span>Total: <strong className="text-gray-700">{total}</strong></span>
-      <span className="text-green-600">Verified: {verified}</span>
-      <span className="text-lime-600">Likely Real: {likely}</span>
-      <span className="text-orange-600">Suspicious: {suspicious}</span>
-      <span className="text-red-600">Junk: {junk}</span>
+      <span>Total: <strong className="text-gray-700">{stats.total_leads}</strong></span>
+      <span className="text-green-600">Verified: {stats.verified}</span>
+      <span className="text-lime-600">Likely Real: {stats.likely_real}</span>
+      <span className="text-orange-600">Suspicious: {stats.suspicious}</span>
+      <span className="text-red-600">Junk: {stats.junk}</span>
     </div>
   );
 }
@@ -442,6 +438,7 @@ function LeadFeed({
   totalLeads,
   onLoadMore,
   loadingMore,
+  stats,
 }: {
   leads: Lead[];
   userInfo: UserInfo | null;
@@ -449,6 +446,7 @@ function LeadFeed({
   totalLeads: number;
   onLoadMore: () => void;
   loadingMore: boolean;
+  stats: LeadStats | null;
 }) {
   const siteMap = Object.fromEntries(sites.map((s) => [s.id, s]));
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -469,7 +467,7 @@ function LeadFeed({
       <div className="flex items-center justify-between px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
         <span>Showing <strong className="text-gray-700">{leads.length}</strong> of <strong className="text-gray-700">{totalLeads}</strong> leads</span>
       </div>
-      <StatsBar leads={leads} />
+      <StatsBar stats={stats} />
 
       {/* Usage indicator */}
       {userInfo && userInfo.plan === "free" && (
@@ -1353,14 +1351,17 @@ function GoogleAdsTab({
     fetchData();
   }, [fetchData]);
 
+  const [pullMessage, setPullMessage] = useState<string | null>(null);
+
   const handlePullNow = async () => {
     setPulling(true);
+    setPullMessage(null);
     try {
       const api = await getApi();
       await api.triggerJob("pull_google_ads");
-      setTimeout(fetchData, 3000);
+      setPullMessage("Pull triggered — data will update within a few minutes.");
     } catch {
-      // silent
+      setPullMessage("Failed to trigger pull. Please try again.");
     } finally {
       setPulling(false);
     }
@@ -1388,13 +1389,17 @@ function GoogleAdsTab({
       <div className="py-12 text-center px-4">
         <p className="text-sm text-gray-500">No campaign data yet.</p>
         <p className="text-xs text-gray-400 mt-1">Data appears within 6 hours of connecting your Google Ads account.</p>
-        <button
-          onClick={handlePullNow}
-          disabled={pulling}
-          className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          {pulling ? "Pulling..." : "Pull Now"}
-        </button>
+        {pullMessage ? (
+          <p className="mt-3 text-sm text-blue-600">{pullMessage}</p>
+        ) : (
+          <button
+            onClick={handlePullNow}
+            disabled={pulling}
+            className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {pulling ? "Pulling..." : "Pull Now"}
+          </button>
+        )}
       </div>
     );
   }
@@ -1504,6 +1509,7 @@ export default function DashboardPage() {
   const [totalLeads, setTotalLeads] = useState(0);
   const [leadPage, setLeadPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [leadStats, setLeadStats] = useState<LeadStats | null>(null);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [pixelStatuses, setPixelStatuses] = useState<Record<string, PixelStatus>>({});
   const [loading, setLoading] = useState(true);
@@ -1532,16 +1538,18 @@ export default function DashboardPage() {
   const fetchData = useCallback(async () => {
     try {
       const api = await getApi();
-      const [sitesData, leadsData, me] = await Promise.all([
+      const [sitesData, leadsData, me, stats] = await Promise.all([
         api.getSites(),
         api.getLeads({ page: 1, per_page: 25 }),
         api.getMe(),
+        api.getLeadStats(),
       ]);
       setSites(sitesData);
       setLeads(leadsData.leads);
       setTotalLeads(leadsData.total);
       setLeadPage(1);
       setUserInfo(me);
+      setLeadStats(stats);
       if (sitesData.length === 0) setTab("setup");
       if (sitesData.length > 0) {
         fetchAllPixelStatuses(sitesData);
@@ -1685,6 +1693,7 @@ export default function DashboardPage() {
                 totalLeads={totalLeads}
                 onLoadMore={handleLoadMore}
                 loadingMore={loadingMore}
+                stats={leadStats}
               />
             </>
           )}

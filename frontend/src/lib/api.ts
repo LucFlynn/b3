@@ -104,6 +104,18 @@ export interface PaginatedLeads {
   per_page: number;
 }
 
+export interface LeadStats {
+  total_leads: number;
+  verified: number;
+  likely_real: number;
+  suspicious: number;
+  junk: number;
+  duplicates: number;
+  attributed: number;
+  unattributed: number;
+  avg_quality_score: number | null;
+}
+
 export interface CampaignRow {
   campaign_name: string | null;
   ad_group_name: string | null;
@@ -169,7 +181,7 @@ export function createApi(token: string) {
       return request<PaginatedLeads>(`/api/leads${qs ? `?${qs}` : ""}`, token);
     },
 
-    getLeadStats: () => request<Record<string, unknown>>("/api/leads/stats", token),
+    getLeadStats: () => request<LeadStats>("/api/leads/stats", token),
 
     createCheckout: () =>
       request<{ checkout_url: string }>("/api/billing/create-checkout", token, {
