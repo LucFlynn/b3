@@ -8,6 +8,8 @@ export interface Site {
   pixel_verified: boolean;
   pixel_snippet?: string;
   leads_count?: number;
+  google_ads_customer_id?: string;
+  meta_ads_account_id?: string;
 }
 
 export interface ScoringSignal {
@@ -68,6 +70,60 @@ export interface UserInfo {
   usage_limit: number;
 }
 
+export interface GoogleAdsConnection {
+  id: string;
+  customer_id: string;
+  account_name: string;
+  connected_at: string | null;
+  last_used_at: string | null;
+  status: string;
+}
+
+export interface MetaAdsConnection {
+  id: string;
+  account_id: string;
+  account_name: string;
+  connected_at: string | null;
+  last_used_at: string | null;
+  status: string;
+}
+
+export interface SlackConnection {
+  id: string;
+  workspace_id: string;
+  workspace_name: string;
+  channel_name: string;
+  connected_at: string | null;
+  status: string;
+}
+
+export interface PaginatedLeads {
+  leads: Lead[];
+  total: number;
+  page: number;
+  per_page: number;
+}
+
+export interface CampaignRow {
+  campaign_name: string | null;
+  ad_group_name: string | null;
+  spend: number;
+  clicks: number;
+  google_reported: number;
+  epi_verified: number;
+  junk: number;
+  real_cpl: number | null;
+}
+
+export interface CampaignPerformance {
+  total_spend: number;
+  total_google_reported: number;
+  total_epi_verified: number;
+  total_junk: number;
+  discrepancy_pct: number | null;
+  campaigns: CampaignRow[];
+}
+
 async function request<T>(
   path: string,
   token: string,
@@ -110,7 +166,7 @@ export function createApi(token: string) {
       if (params?.page) searchParams.set("page", String(params.page));
       if (params?.per_page) searchParams.set("per_page", String(params.per_page));
       const qs = searchParams.toString();
-      return request<Lead[]>(`/api/leads/recent${qs ? `?${qs}` : ""}`, token);
+      return request<PaginatedLeads>(`/api/leads${qs ? `?${qs}` : ""}`, token);
     },
 
     getLeadStats: () => request<Record<string, unknown>>("/api/leads/stats", token),
@@ -125,5 +181,70 @@ export function createApi(token: string) {
 
     getPixelStatus: (siteId: string) =>
       request<PixelStatus>(`/api/sites/${siteId}/pixel-status`, token),
+
+    generateApiKey: () =>
+      request<{ api_key: string }>("/api/auth/api-key", token, { method: "POST" }),
+
+    getGoogleAdsAuthUrl: () =>
+      request<{ auth_url: string }>("/api/google-ads/auth-url", token),
+
+    getGoogleAdsConnections: () =>
+      request<GoogleAdsConnection[]>("/api/google-ads/connections", token),
+
+    disconnectGoogleAds: (connectionId: string) =>
+      request<{ status: string }>(`/api/google-ads/disconnect/${connectionId}`, token, {
+        method: "POST",
+      }),
+
+    selectGoogleAdsAccount: (connectionId: string, customerId: string, accountName: string) =>
+      request<{ status: string }>(`/api/google-ads/select-account?connection_id=${connectionId}&customer_id=${customerId}&account_name=${encodeURIComponent(accountName)}`, token, {
+        method: "POST",
+      }),
+
+    getGoogleAdsPendingAccounts: (connectionId: string) =>
+      request<{ connection_id: string; accounts: { customer_id: string; descriptive_name: string }[] }>(`/api/google-ads/pending-accounts/${connectionId}`, token),
+
+    // Meta Ads
+    getMetaAdsAuthUrl: () =>
+      request<{ auth_url: string }>("/api/meta-ads/auth-url", token),
+
+    getMetaAdsConnections: () =>
+      request<MetaAdsConnection[]>("/api/meta-ads/connections", token),
+
+    disconnectMetaAds: (connectionId: string) =>
+      request<{ status: string }>(`/api/meta-ads/disconnect/${connectionId}`, token, {
+        method: "POST",
+      }),
+
+    getMetaAdsPendingAccounts: (connectionId: string) =>
+      request<{ connection_id: string; accounts: { account_id: string; name: string }[] }>(`/api/meta-ads/pending-accounts/${connectionId}`, token),
+
+    selectMetaAdsAccount: (connectionId: string, accountId: string, accountName: string) =>
+      request<{ status: string }>(`/api/meta-ads/select-account?connection_id=${connectionId}&account_id=${accountId}&account_name=${encodeURIComponent(accountName)}`, token, {
+        method: "POST",
+      }),
+
+    // Slack
+    getSlackInstallUrl: () =>
+      request<{ install_url: string }>("/api/slack/install-url", token),
+
+    getSlackConnections: () =>
+      request<SlackConnection[]>("/api/slack/connections", token),
+
+    disconnectSlack: (connectionId: string) =>
+      request<{ status: string }>(`/api/slack/disconnect/${connectionId}`, token, {
+        method: "POST",
+      }),
+
+    getCampaignPerformance: (params?: { site_id?: string; days?: number }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.site_id) searchParams.set("site_id", params.site_id);
+      if (params?.days) searchParams.set("days", String(params.days));
+      const qs = searchParams.toString();
+      return request<CampaignPerformance>(`/api/campaigns/performance${qs ? `?${qs}` : ""}`, token);
+    },
+
+    triggerJob: (jobName: string) =>
+      request<{ status: string }>(`/api/jobs/run/${jobName}`, token, { method: "POST" }),
   };
 }

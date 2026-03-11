@@ -3,9 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { UserButton } from "@clerk/nextjs";
 import { useApi } from "@/lib/use-api";
-import type { Site, Lead, UserInfo, ScoringSignal, PixelStatus } from "@/lib/api";
+import type { Site, Lead, UserInfo, ScoringSignal, PixelStatus, GoogleAdsConnection, MetaAdsConnection, SlackConnection, PaginatedLeads, CampaignPerformance } from "@/lib/api";
 
-type Tab = "leads" | "setup" | "usage";
+type Tab = "leads" | "setup" | "usage" | "google_ads";
 
 // ── Helpers ──
 
@@ -435,10 +435,25 @@ function ScoringHelp({ onClose }: { onClose: () => void }) {
 
 // ── Lead Feed ──
 
-function LeadFeed({ leads, userInfo, sites }: { leads: Lead[]; userInfo: UserInfo | null; sites: Site[] }) {
+function LeadFeed({
+  leads,
+  userInfo,
+  sites,
+  totalLeads,
+  onLoadMore,
+  loadingMore,
+}: {
+  leads: Lead[];
+  userInfo: UserInfo | null;
+  sites: Site[];
+  totalLeads: number;
+  onLoadMore: () => void;
+  loadingMore: boolean;
+}) {
   const siteMap = Object.fromEntries(sites.map((s) => [s.id, s]));
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showHelp, setShowHelp] = useState(false);
+  const hasMore = leads.length < totalLeads;
 
   if (leads.length === 0) {
     return (
@@ -450,7 +465,10 @@ function LeadFeed({ leads, userInfo, sites }: { leads: Lead[]; userInfo: UserInf
 
   return (
     <div>
-      {/* Stats bar */}
+      {/* Lead count + stats bar */}
+      <div className="flex items-center justify-between px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
+        <span>Showing <strong className="text-gray-700">{leads.length}</strong> of <strong className="text-gray-700">{totalLeads}</strong> leads</span>
+      </div>
       <StatsBar leads={leads} />
 
       {/* Usage indicator */}
@@ -497,7 +515,6 @@ function LeadFeed({ leads, userInfo, sites }: { leads: Lead[]; userInfo: UserInf
                     {siteMap[lead.site_id] && (
                       <span className="text-gray-500 font-medium">{siteMap[lead.site_id].name || siteMap[lead.site_id].domain}</span>
                     )}
-                    {lead.utm_source && <span>{lead.utm_source}</span>}
                     <span>{new Date(lead.created_at).toLocaleString()}</span>
                   </div>
                   {/* Flags line — only for sub-75 scores */}
@@ -506,6 +523,16 @@ function LeadFeed({ leads, userInfo, sites }: { leads: Lead[]; userInfo: UserInf
                       Flags: {flags.join(" · ")}
                     </div>
                   )}
+                  {/* Attribution line */}
+                  <div className="mt-0.5 text-xs text-gray-400">
+                    {lead.gclid ? (
+                      <span>Google Ads{lead.utm_campaign ? ` · Campaign: ${lead.utm_campaign}` : ""}{` · Source: ${lead.utm_source || "google"} / ${lead.utm_medium || "cpc"}`}</span>
+                    ) : lead.utm_source ? (
+                      <span>{lead.utm_source} / {lead.utm_medium || "unknown"}{lead.utm_campaign ? ` · Campaign: ${lead.utm_campaign}` : ""}</span>
+                    ) : (
+                      <span>Direct / No attribution</span>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0 ml-2">
                   {lead.attribution_tier && lead.attribution_tier !== "unattributed" && (
@@ -524,20 +551,592 @@ function LeadFeed({ leads, userInfo, sites }: { leads: Lead[]; userInfo: UserInf
           );
         })}
       </div>
+
+      {/* Load more */}
+      {hasMore && (
+        <div className="px-4 py-4 text-center border-t border-gray-100">
+          <button
+            onClick={onLoadMore}
+            disabled={loadingMore}
+            className="rounded-lg bg-gray-100 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+          >
+            {loadingMore ? "Loading..." : "Load more"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 // ── Setup Panel ──
 
+function McpPanel({ getApi }: { getApi: () => Promise<ReturnType<typeof import("@/lib/api").createApi>> }) {
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleGenerate = async () => {
+    setGenerating(true);
+    try {
+      const api = await getApi();
+      const { api_key } = await api.generateApiKey();
+      setApiKey(api_key);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const mcpConfig = apiKey
+    ? JSON.stringify(
+        {
+          mcpServers: {
+            epi: {
+              command: "npx",
+              args: ["-y", "epi-mcp-server"],
+              env: { EPI_API_KEY: apiKey },
+            },
+          },
+        },
+        null,
+        2
+      )
+    : null;
+
+  const copyConfig = () => {
+    if (mcpConfig) {
+      navigator.clipboard.writeText(mcpConfig);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  return (
+    <div className="rounded-lg border border-gray-200 p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-sm font-semibold text-gray-900">MCP Server</h3>
+        <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs text-purple-600 font-medium">
+          Claude &middot; Cursor &middot; Windsurf
+        </span>
+      </div>
+      <p className="text-xs text-gray-500 mb-3">
+        Query your leads directly from AI tools. Generate an API key, then add the config to your MCP client.
+      </p>
+      {!apiKey ? (
+        <button
+          onClick={handleGenerate}
+          disabled={generating}
+          className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50"
+        >
+          {generating ? "Generating..." : "Generate API Key"}
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <div>
+            <p className="text-xs text-gray-400 mb-1">Your API Key (save this — it won{"'"}t be shown again)</p>
+            <code className="block rounded bg-gray-100 px-3 py-2 text-xs font-mono text-gray-700 break-all select-all">
+              {apiKey}
+            </code>
+          </div>
+          <div>
+            <p className="text-xs text-gray-400 mb-1">Add to your Claude / Cursor config</p>
+            <div className="relative">
+              <pre className="overflow-x-auto rounded bg-gray-900 p-3 text-xs text-green-400 font-mono">
+                {mcpConfig}
+              </pre>
+              <button
+                onClick={copyConfig}
+                className="absolute top-1.5 right-1.5 rounded bg-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-600"
+              >
+                {copied ? "Copied!" : "Copy"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Account Selector Modal ──
+
+function AccountSelectorModal({
+  title,
+  accounts,
+  idKey,
+  nameKey,
+  onSelect,
+  onCancel,
+}: {
+  title: string;
+  accounts: Record<string, string>[];
+  idKey: string;
+  nameKey: string;
+  onSelect: (id: string, name: string) => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onCancel}>
+      <div className="bg-white rounded-xl max-w-md w-full p-6 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 text-xl">x</button>
+        </div>
+        <p className="text-sm text-gray-500 mb-4">You have access to multiple accounts. Select the one to connect:</p>
+        <div className="space-y-2">
+          {accounts.map((acct) => (
+            <button
+              key={acct[idKey]}
+              onClick={() => onSelect(acct[idKey], acct[nameKey] || acct[idKey])}
+              className="w-full text-left rounded-lg border border-gray-200 px-4 py-3 hover:border-blue-400 hover:bg-blue-50 transition"
+            >
+              <p className="text-sm font-medium text-gray-900">{acct[nameKey] || "Unnamed"}</p>
+              <p className="text-xs text-gray-400">{acct[idKey]}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GoogleAdsPanel({
+  getApi,
+}: {
+  getApi: () => Promise<ReturnType<typeof import("@/lib/api").createApi>>;
+}) {
+  const [connections, setConnections] = useState<GoogleAdsConnection[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [connecting, setConnecting] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [pendingAccounts, setPendingAccounts] = useState<{ connectionId: string; accounts: Record<string, string>[] } | null>(null);
+
+  const fetchConnections = useCallback(async () => {
+    try {
+      const api = await getApi();
+      const conns = await api.getGoogleAdsConnections();
+      setConnections(conns);
+    } catch {
+      // Silent fail
+    } finally {
+      setLoading(false);
+    }
+  }, [getApi]);
+
+  useEffect(() => {
+    fetchConnections();
+  }, [fetchConnections]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const googleAds = params.get("google_ads");
+    if (googleAds === "connected") {
+      setMessage({ type: "success", text: "Google Ads account connected successfully!" });
+      window.history.replaceState({}, "", window.location.pathname);
+      fetchConnections();
+    } else if (googleAds === "select") {
+      const connectionId = params.get("connection_id");
+      if (connectionId) {
+        window.history.replaceState({}, "", window.location.pathname);
+        (async () => {
+          try {
+            const api = await getApi();
+            const data = await api.getGoogleAdsPendingAccounts(connectionId);
+            setPendingAccounts({ connectionId: data.connection_id, accounts: data.accounts as unknown as Record<string, string>[] });
+          } catch {
+            setMessage({ type: "error", text: "Failed to load accounts. Please try again." });
+          }
+        })();
+      }
+    } else if (googleAds === "error") {
+      setMessage({ type: "error", text: "Failed to connect Google Ads account. Please try again." });
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [fetchConnections, getApi]);
+
+  const handleConnect = async () => {
+    setConnecting(true);
+    try {
+      const api = await getApi();
+      const { auth_url } = await api.getGoogleAdsAuthUrl();
+      window.location.href = auth_url;
+    } catch {
+      setMessage({ type: "error", text: "Failed to start connection. Please try again." });
+      setConnecting(false);
+    }
+  };
+
+  const handleDisconnect = async (connectionId: string) => {
+    try {
+      const api = await getApi();
+      await api.disconnectGoogleAds(connectionId);
+      setMessage({ type: "success", text: "Google Ads account disconnected." });
+      fetchConnections();
+    } catch {
+      setMessage({ type: "error", text: "Failed to disconnect. Please try again." });
+    }
+  };
+
+  const handleSelectAccount = async (customerId: string, accountName: string) => {
+    if (!pendingAccounts) return;
+    try {
+      const api = await getApi();
+      await api.selectGoogleAdsAccount(pendingAccounts.connectionId, customerId, accountName);
+      setPendingAccounts(null);
+      setMessage({ type: "success", text: `Connected to ${accountName}` });
+      fetchConnections();
+    } catch {
+      setMessage({ type: "error", text: "Failed to select account. Please try again." });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="rounded-lg border border-gray-200 p-4">
+        <div className="animate-pulse space-y-2">
+          <div className="h-4 w-32 rounded bg-gray-200" />
+          <div className="h-3 w-48 rounded bg-gray-100" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-gray-200 p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-sm font-semibold text-gray-900">Google Ads</h3>
+        {connections.length > 0 && (
+          <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-600 font-medium">
+            Connected
+          </span>
+        )}
+      </div>
+
+      {message && (
+        <div className={`mb-3 rounded-lg px-3 py-2 text-xs ${message.type === "success" ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+          {message.text}
+        </div>
+      )}
+
+      {pendingAccounts && (
+        <AccountSelectorModal
+          title="Select Google Ads Account"
+          accounts={pendingAccounts.accounts}
+          idKey="customer_id"
+          nameKey="descriptive_name"
+          onSelect={handleSelectAccount}
+          onCancel={() => setPendingAccounts(null)}
+        />
+      )}
+
+      {connections.length === 0 ? (
+        <>
+          <p className="text-xs text-gray-500 mb-3">
+            Connect your Google Ads account to pull campaign data, match conversions to leads, and enable attribution tracking.
+          </p>
+          <button onClick={handleConnect} disabled={connecting} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+            {connecting ? "Redirecting..." : "Connect Google Ads"}
+          </button>
+        </>
+      ) : (
+        <div className="space-y-2">
+          {connections.map((conn) => (
+            <div key={conn.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+              <div>
+                <p className="text-sm font-medium text-gray-900">{conn.account_name || conn.customer_id}</p>
+                <p className="text-xs text-gray-400">
+                  {conn.customer_id}
+                  {conn.connected_at && ` · connected ${new Date(conn.connected_at).toLocaleDateString()}`}
+                </p>
+              </div>
+              <button onClick={() => handleDisconnect(conn.id)} className="rounded bg-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-red-100 hover:text-red-600">
+                Disconnect
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MetaAdsPanel({
+  getApi,
+}: {
+  getApi: () => Promise<ReturnType<typeof import("@/lib/api").createApi>>;
+}) {
+  const [connections, setConnections] = useState<MetaAdsConnection[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [connecting, setConnecting] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [pendingAccounts, setPendingAccounts] = useState<{ connectionId: string; accounts: Record<string, string>[] } | null>(null);
+
+  const fetchConnections = useCallback(async () => {
+    try {
+      const api = await getApi();
+      const conns = await api.getMetaAdsConnections();
+      setConnections(conns);
+    } catch {
+      // Silent fail
+    } finally {
+      setLoading(false);
+    }
+  }, [getApi]);
+
+  useEffect(() => { fetchConnections(); }, [fetchConnections]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const metaAds = params.get("meta_ads");
+    if (metaAds === "connected") {
+      setMessage({ type: "success", text: "Meta Ads account connected successfully!" });
+      window.history.replaceState({}, "", window.location.pathname);
+      fetchConnections();
+    } else if (metaAds === "select") {
+      const connectionId = params.get("connection_id");
+      if (connectionId) {
+        window.history.replaceState({}, "", window.location.pathname);
+        (async () => {
+          try {
+            const api = await getApi();
+            const data = await api.getMetaAdsPendingAccounts(connectionId);
+            setPendingAccounts({ connectionId: data.connection_id, accounts: data.accounts as unknown as Record<string, string>[] });
+          } catch {
+            setMessage({ type: "error", text: "Failed to load accounts. Please try again." });
+          }
+        })();
+      }
+    } else if (metaAds === "error") {
+      setMessage({ type: "error", text: "Failed to connect Meta Ads account. Please try again." });
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [fetchConnections, getApi]);
+
+  const handleConnect = async () => {
+    setConnecting(true);
+    try {
+      const api = await getApi();
+      const { auth_url } = await api.getMetaAdsAuthUrl();
+      window.location.href = auth_url;
+    } catch {
+      setMessage({ type: "error", text: "Failed to start connection. Please try again." });
+      setConnecting(false);
+    }
+  };
+
+  const handleDisconnect = async (connectionId: string) => {
+    try {
+      const api = await getApi();
+      await api.disconnectMetaAds(connectionId);
+      setMessage({ type: "success", text: "Meta Ads account disconnected." });
+      fetchConnections();
+    } catch {
+      setMessage({ type: "error", text: "Failed to disconnect. Please try again." });
+    }
+  };
+
+  const handleSelectAccount = async (accountId: string, accountName: string) => {
+    if (!pendingAccounts) return;
+    try {
+      const api = await getApi();
+      await api.selectMetaAdsAccount(pendingAccounts.connectionId, accountId, accountName);
+      setPendingAccounts(null);
+      setMessage({ type: "success", text: `Connected to ${accountName}` });
+      fetchConnections();
+    } catch {
+      setMessage({ type: "error", text: "Failed to select account. Please try again." });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="rounded-lg border border-gray-200 p-4">
+        <div className="animate-pulse space-y-2">
+          <div className="h-4 w-32 rounded bg-gray-200" />
+          <div className="h-3 w-48 rounded bg-gray-100" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-gray-200 p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-sm font-semibold text-gray-900">Meta Ads</h3>
+        {connections.length > 0 && (
+          <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-600 font-medium">
+            Connected
+          </span>
+        )}
+      </div>
+      {message && (
+        <div className={`mb-3 rounded-lg px-3 py-2 text-xs ${message.type === "success" ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+          {message.text}
+        </div>
+      )}
+      {pendingAccounts && (
+        <AccountSelectorModal
+          title="Select Meta Ad Account"
+          accounts={pendingAccounts.accounts}
+          idKey="account_id"
+          nameKey="name"
+          onSelect={handleSelectAccount}
+          onCancel={() => setPendingAccounts(null)}
+        />
+      )}
+      {connections.length === 0 ? (
+        <>
+          <p className="text-xs text-gray-500 mb-3">Connect your Meta Ads account to pull campaign data and enable attribution tracking.</p>
+          <button onClick={handleConnect} disabled={connecting} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+            {connecting ? "Redirecting..." : "Connect Meta Ads"}
+          </button>
+        </>
+      ) : (
+        <div className="space-y-2">
+          {connections.map((conn) => (
+            <div key={conn.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+              <div>
+                <p className="text-sm font-medium text-gray-900">{conn.account_name || conn.account_id || "Meta Ads"}</p>
+                <p className="text-xs text-gray-400">
+                  {conn.account_id && `${conn.account_id} · `}
+                  {conn.connected_at && `connected ${new Date(conn.connected_at).toLocaleDateString()}`}
+                </p>
+              </div>
+              <button onClick={() => handleDisconnect(conn.id)} className="rounded bg-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-red-100 hover:text-red-600">
+                Disconnect
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SlackPanel({
+  getApi,
+}: {
+  getApi: () => Promise<ReturnType<typeof import("@/lib/api").createApi>>;
+}) {
+  const [connections, setConnections] = useState<SlackConnection[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [connecting, setConnecting] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const fetchConnections = useCallback(async () => {
+    try {
+      const api = await getApi();
+      const conns = await api.getSlackConnections();
+      setConnections(conns);
+    } catch {
+      // Silent fail
+    } finally {
+      setLoading(false);
+    }
+  }, [getApi]);
+
+  useEffect(() => { fetchConnections(); }, [fetchConnections]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const slack = params.get("slack");
+    if (slack === "connected") {
+      setMessage({ type: "success", text: "Slack workspace connected!" });
+      window.history.replaceState({}, "", window.location.pathname);
+      fetchConnections();
+    } else if (slack === "error") {
+      setMessage({ type: "error", text: "Failed to connect Slack. Please try again." });
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [fetchConnections]);
+
+  const handleConnect = async () => {
+    setConnecting(true);
+    try {
+      const api = await getApi();
+      const { install_url } = await api.getSlackInstallUrl();
+      window.location.href = install_url;
+    } catch {
+      setMessage({ type: "error", text: "Failed to start connection. Please try again." });
+      setConnecting(false);
+    }
+  };
+
+  const handleDisconnect = async (connectionId: string) => {
+    try {
+      const api = await getApi();
+      await api.disconnectSlack(connectionId);
+      setMessage({ type: "success", text: "Slack workspace disconnected." });
+      fetchConnections();
+    } catch {
+      setMessage({ type: "error", text: "Failed to disconnect. Please try again." });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="rounded-lg border border-gray-200 p-4">
+        <div className="animate-pulse space-y-2">
+          <div className="h-4 w-32 rounded bg-gray-200" />
+          <div className="h-3 w-48 rounded bg-gray-100" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-gray-200 p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-sm font-semibold text-gray-900">Slack</h3>
+        {connections.length > 0 && (
+          <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-600 font-medium">
+            Connected
+          </span>
+        )}
+      </div>
+      {message && (
+        <div className={`mb-3 rounded-lg px-3 py-2 text-xs ${message.type === "success" ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+          {message.text}
+        </div>
+      )}
+      {connections.length === 0 ? (
+        <>
+          <p className="text-xs text-gray-500 mb-3">Connect Slack to get lead notifications in your workspace.</p>
+          <button onClick={handleConnect} disabled={connecting} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+            {connecting ? "Redirecting..." : "Add to Slack"}
+          </button>
+        </>
+      ) : (
+        <div className="space-y-2">
+          {connections.map((conn) => (
+            <div key={conn.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+              <div>
+                <p className="text-sm font-medium text-gray-900">{conn.workspace_name || "Slack Workspace"}</p>
+                <p className="text-xs text-gray-400">
+                  {conn.channel_name && `#${conn.channel_name} · `}
+                  {conn.connected_at && `connected ${new Date(conn.connected_at).toLocaleDateString()}`}
+                </p>
+              </div>
+              <button onClick={() => handleDisconnect(conn.id)} className="rounded bg-gray-200 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-red-100 hover:text-red-600">
+                Disconnect
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SetupPanel({
   sites,
   onAddSite,
   pixelStatuses,
+  getApi,
 }: {
   sites: Site[];
   onAddSite: (domain: string, name: string) => Promise<void>;
   pixelStatuses: Record<string, PixelStatus>;
+  getApi: () => Promise<ReturnType<typeof import("@/lib/api").createApi>>;
 }) {
   const [domain, setDomain] = useState("");
   const [name, setName] = useState("");
@@ -602,6 +1201,13 @@ function SetupPanel({
           )}
         </div>
       ))}
+
+      {/* Google & Meta hidden until account selector is fixed */}
+      {/* <GoogleAdsPanel getApi={getApi} /> */}
+      {/* <MetaAdsPanel getApi={getApi} /> */}
+      <SlackPanel getApi={getApi} />
+
+      <McpPanel getApi={getApi} />
 
       {!showForm ? (
         <button
@@ -712,6 +1318,182 @@ function UsagePanel({
   );
 }
 
+// ── Google Ads Tab ──
+
+function GoogleAdsTab({
+  getApi,
+  sites,
+}: {
+  getApi: () => Promise<ReturnType<typeof import("@/lib/api").createApi>>;
+  sites: Site[];
+}) {
+  const [data, setData] = useState<CampaignPerformance | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState(30);
+  const [pulling, setPulling] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const hasSiteWithGoogle = sites.some((s) => s.google_ads_customer_id);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const api = await getApi();
+      const result = await api.getCampaignPerformance({ days });
+      setData(result);
+    } catch {
+      setError("Failed to load campaign data.");
+    } finally {
+      setLoading(false);
+    }
+  }, [getApi, days]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handlePullNow = async () => {
+    setPulling(true);
+    try {
+      const api = await getApi();
+      await api.triggerJob("pull_google_ads");
+      setTimeout(fetchData, 3000);
+    } catch {
+      // silent
+    } finally {
+      setPulling(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!hasSiteWithGoogle && (!data || data.campaigns.length === 0)) {
+    return (
+      <div className="py-12 text-center px-4">
+        <p className="text-sm text-gray-500">No Google Ads account connected.</p>
+        <p className="text-xs text-gray-400 mt-1">Go to Setup to connect your Google Ads account.</p>
+      </div>
+    );
+  }
+
+  if (data && data.campaigns.length === 0) {
+    return (
+      <div className="py-12 text-center px-4">
+        <p className="text-sm text-gray-500">No campaign data yet.</p>
+        <p className="text-xs text-gray-400 mt-1">Data appears within 6 hours of connecting your Google Ads account.</p>
+        <button
+          onClick={handlePullNow}
+          disabled={pulling}
+          className="mt-3 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        >
+          {pulling ? "Pulling..." : "Pull Now"}
+        </button>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="py-12 text-center text-sm text-red-500">{error || "Failed to load data."}</div>
+    );
+  }
+
+  const fmt = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  return (
+    <div className="p-4 space-y-4">
+      {/* Date range selector */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-900">Google Ads Performance</h3>
+        <select
+          value={days}
+          onChange={(e) => setDays(Number(e.target.value))}
+          className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+        >
+          <option value={7}>Last 7 days</option>
+          <option value={30}>Last 30 days</option>
+          <option value={90}>Last 90 days</option>
+        </select>
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <div className="rounded-lg border border-gray-200 p-3">
+          <p className="text-xs text-gray-400">Total Spend</p>
+          <p className="text-lg font-bold text-gray-900">{fmt(data.total_spend)}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 p-3">
+          <p className="text-xs text-gray-400">Google Reported</p>
+          <p className="text-lg font-bold text-gray-900">{data.total_google_reported}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 p-3">
+          <p className="text-xs text-gray-400">EPI Verified</p>
+          <p className="text-lg font-bold text-green-600">{data.total_epi_verified}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 p-3">
+          <p className="text-xs text-gray-400">Junk Filtered</p>
+          <p className="text-lg font-bold text-red-600">{data.total_junk}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 p-3 col-span-2 sm:col-span-1">
+          <p className="text-xs text-gray-400">Discrepancy</p>
+          <p className="text-lg font-bold text-orange-600">
+            {data.discrepancy_pct != null ? `${data.discrepancy_pct}%` : "N/A"}
+          </p>
+          {data.discrepancy_pct != null && data.discrepancy_pct > 0 && (
+            <p className="text-xs text-orange-500">Google overcounted</p>
+          )}
+        </div>
+      </div>
+
+      {/* Campaign table */}
+      <div className="overflow-x-auto rounded-lg border border-gray-200">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gray-50 text-left text-xs text-gray-500">
+              <th className="px-3 py-2 font-medium">Campaign</th>
+              <th className="px-3 py-2 font-medium">Ad Group</th>
+              <th className="px-3 py-2 font-medium text-right">Spend</th>
+              <th className="px-3 py-2 font-medium text-right">Clicks</th>
+              <th className="px-3 py-2 font-medium text-right">Google</th>
+              <th className="px-3 py-2 font-medium text-right">EPI Verified</th>
+              <th className="px-3 py-2 font-medium text-right">Junk</th>
+              <th className="px-3 py-2 font-medium text-right">Real CPL</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {data.campaigns.map((row, i) => (
+              <tr key={i} className="hover:bg-gray-50">
+                <td className="px-3 py-2 text-gray-900 font-medium">{row.campaign_name || "—"}</td>
+                <td className="px-3 py-2 text-gray-600">{row.ad_group_name || "—"}</td>
+                <td className="px-3 py-2 text-right text-gray-900">{fmt(row.spend)}</td>
+                <td className="px-3 py-2 text-right text-gray-600">{row.clicks}</td>
+                <td className="px-3 py-2 text-right text-gray-600">{row.google_reported}</td>
+                <td className="px-3 py-2 text-right text-green-600 font-medium">{row.epi_verified}</td>
+                <td className="px-3 py-2 text-right text-red-600">{row.junk}</td>
+                <td className="px-3 py-2 text-right text-gray-900 font-medium">{row.real_cpl != null ? fmt(row.real_cpl) : "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Note about pixel if no EPI data */}
+      {data.total_epi_verified === 0 && data.total_junk === 0 && data.campaigns.length > 0 && (
+        <p className="text-xs text-gray-400 text-center">
+          Install the EPI pixel on your landing pages to verify lead quality and see EPI-verified numbers.
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ── Main Dashboard ──
 
 export default function DashboardPage() {
@@ -719,6 +1501,9 @@ export default function DashboardPage() {
   const [tab, setTab] = useState<Tab>("leads");
   const [sites, setSites] = useState<Site[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [totalLeads, setTotalLeads] = useState(0);
+  const [leadPage, setLeadPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [pixelStatuses, setPixelStatuses] = useState<Record<string, PixelStatus>>({});
   const [loading, setLoading] = useState(true);
@@ -749,11 +1534,13 @@ export default function DashboardPage() {
       const api = await getApi();
       const [sitesData, leadsData, me] = await Promise.all([
         api.getSites(),
-        api.getLeads({ per_page: 50 }),
+        api.getLeads({ page: 1, per_page: 25 }),
         api.getMe(),
       ]);
       setSites(sitesData);
-      setLeads(leadsData);
+      setLeads(leadsData.leads);
+      setTotalLeads(leadsData.total);
+      setLeadPage(1);
       setUserInfo(me);
       if (sitesData.length === 0) setTab("setup");
       if (sitesData.length > 0) {
@@ -765,6 +1552,22 @@ export default function DashboardPage() {
       setLoading(false);
     }
   }, [getApi, fetchAllPixelStatuses]);
+
+  const handleLoadMore = useCallback(async () => {
+    setLoadingMore(true);
+    try {
+      const api = await getApi();
+      const nextPage = leadPage + 1;
+      const result = await api.getLeads({ page: nextPage, per_page: 25 });
+      setLeads((prev) => [...prev, ...result.leads]);
+      setTotalLeads(result.total);
+      setLeadPage(nextPage);
+    } catch {
+      // silent
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [getApi, leadPage]);
 
   useEffect(() => {
     fetchData();
@@ -820,6 +1623,7 @@ export default function DashboardPage() {
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "leads", label: "Leads" },
+    { id: "google_ads", label: "Google Ads" },
     { id: "setup", label: "Setup" },
     { id: "usage", label: "Usage" },
   ];
@@ -874,10 +1678,18 @@ export default function DashboardPage() {
           {tab === "leads" && (
             <>
               <PixelStatusBar sites={sites} statuses={pixelStatuses} />
-              <LeadFeed leads={leads} userInfo={userInfo} sites={sites} />
+              <LeadFeed
+                leads={leads}
+                userInfo={userInfo}
+                sites={sites}
+                totalLeads={totalLeads}
+                onLoadMore={handleLoadMore}
+                loadingMore={loadingMore}
+              />
             </>
           )}
-          {tab === "setup" && <SetupPanel sites={sites} onAddSite={handleAddSite} pixelStatuses={pixelStatuses} />}
+          {tab === "google_ads" && <GoogleAdsTab getApi={getApi} sites={sites} />}
+          {tab === "setup" && <SetupPanel sites={sites} onAddSite={handleAddSite} pixelStatuses={pixelStatuses} getApi={getApi} />}
           {tab === "usage" && (
             <UsagePanel
               userInfo={userInfo}
