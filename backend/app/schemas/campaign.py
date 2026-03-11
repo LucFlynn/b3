@@ -9,8 +9,8 @@ class CampaignRow(BaseModel):
     spend: float
     clicks: int
     google_reported: int
-    epi_verified: int
-    junk: int
+    epi_verified: Optional[int] = None
+    junk: Optional[int] = None
     real_cpl: Optional[float] = None
 
 

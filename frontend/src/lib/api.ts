@@ -122,8 +122,8 @@ export interface CampaignRow {
   spend: number;
   clicks: number;
   google_reported: number;
-  epi_verified: number;
-  junk: number;
+  epi_verified: number | null;
+  junk: number | null;
   real_cpl: number | null;
 }
 
@@ -171,6 +171,12 @@ export function createApi(token: string) {
       }),
 
     getSites: () => request<Site[]>("/api/sites", token),
+
+    updateSite: (siteId: string, data: { google_ads_customer_id?: string; meta_ads_account_id?: string }) =>
+      request<Site>(`/api/sites/${siteId}`, token, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      }),
 
     getLeads: (params?: { site_id?: string; page?: number; per_page?: number }) => {
       const searchParams = new URLSearchParams();

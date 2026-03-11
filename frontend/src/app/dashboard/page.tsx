@@ -1129,16 +1129,80 @@ function SlackPanel({
   );
 }
 
+function SiteCardAdIds({
+  site,
+  getApi,
+  onSiteUpdated,
+}: {
+  site: Site;
+  getApi: () => Promise<ReturnType<typeof import("@/lib/api").createApi>>;
+  onSiteUpdated: () => void;
+}) {
+  const [googleId, setGoogleId] = useState(site.google_ads_customer_id || "");
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const dirty = googleId !== (site.google_ads_customer_id || "");
+
+  const handleSave = async () => {
+    setSaving(true);
+    setMessage(null);
+    try {
+      const api = await getApi();
+      await api.updateSite(site.id, { google_ads_customer_id: googleId || undefined });
+      setMessage({ type: "success", text: "Saved" });
+      onSiteUpdated();
+    } catch {
+      setMessage({ type: "error", text: "Failed to save. Please try again." });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-3 space-y-2">
+      <div>
+        <label className="block text-xs text-gray-500 mb-1">Google Ads Customer ID</label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="e.g. 123-456-7890"
+            value={googleId}
+            onChange={(e) => setGoogleId(e.target.value)}
+            className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+          />
+          {dirty && (
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Save"}
+            </button>
+          )}
+        </div>
+        {message && (
+          <p className={`mt-1 text-xs ${message.type === "success" ? "text-green-600" : "text-red-500"}`}>
+            {message.text}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function SetupPanel({
   sites,
   onAddSite,
   pixelStatuses,
   getApi,
+  onSitesRefresh,
 }: {
   sites: Site[];
   onAddSite: (domain: string, name: string) => Promise<void>;
   pixelStatuses: Record<string, PixelStatus>;
   getApi: () => Promise<ReturnType<typeof import("@/lib/api").createApi>>;
+  onSitesRefresh: () => void;
 }) {
   const [domain, setDomain] = useState("");
   const [name, setName] = useState("");
@@ -1201,12 +1265,9 @@ function SetupPanel({
               </div>
             </div>
           )}
+          <SiteCardAdIds site={site} getApi={getApi} onSiteUpdated={onSitesRefresh} />
         </div>
       ))}
-
-      {/* Google & Meta hidden until account selector is fixed */}
-      {/* <GoogleAdsPanel getApi={getApi} /> */}
-      {/* <MetaAdsPanel getApi={getApi} /> */}
       <SlackPanel getApi={getApi} />
 
       <McpPanel getApi={getApi} />
@@ -1487,8 +1548,8 @@ function GoogleAdsTab({
                 <td className="px-3 py-2 text-right text-gray-900">{fmt(row.spend)}</td>
                 <td className="px-3 py-2 text-right text-gray-600">{row.clicks}</td>
                 <td className="px-3 py-2 text-right text-gray-600">{row.google_reported}</td>
-                <td className="px-3 py-2 text-right text-green-600 font-medium">{row.epi_verified}</td>
-                <td className="px-3 py-2 text-right text-red-600">{row.junk}</td>
+                <td className="px-3 py-2 text-right text-green-600 font-medium">{row.epi_verified != null ? row.epi_verified : ""}</td>
+                <td className="px-3 py-2 text-right text-red-600">{row.junk != null ? row.junk : ""}</td>
                 <td className="px-3 py-2 text-right text-gray-900 font-medium">{row.real_cpl != null ? fmt(row.real_cpl) : "—"}</td>
               </tr>
             ))}
@@ -1616,6 +1677,14 @@ export default function DashboardPage() {
     setSites(updated);
   };
 
+  const handleSitesRefresh = useCallback(async () => {
+    try {
+      const api = await getApi();
+      const updated = await api.getSites();
+      setSites(updated);
+    } catch {}
+  }, [getApi]);
+
   const handleUpgrade = async () => {
     const api = await getApi();
     const { checkout_url } = await api.createCheckout();
@@ -1705,7 +1774,7 @@ export default function DashboardPage() {
             </>
           )}
           {tab === "google_ads" && <GoogleAdsTab getApi={getApi} sites={sites} />}
-          {tab === "setup" && <SetupPanel sites={sites} onAddSite={handleAddSite} pixelStatuses={pixelStatuses} getApi={getApi} />}
+          {tab === "setup" && <SetupPanel sites={sites} onAddSite={handleAddSite} pixelStatuses={pixelStatuses} getApi={getApi} onSitesRefresh={handleSitesRefresh} />}
           {tab === "usage" && (
             <UsagePanel
               userInfo={userInfo}

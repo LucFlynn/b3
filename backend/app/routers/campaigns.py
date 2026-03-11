@@ -111,11 +111,13 @@ async def campaign_performance(
         clicks = int(row.clicks or 0)
         google_reported = int(row.google_reported or 0)
 
-        # Get EPI data for this campaign
+        # Get EPI data — only show on the first row per campaign to avoid
+        # users thinking the same count applies to each ad group.
         lead_data = lead_map.get(row.campaign_name, {"verified": 0, "junk": 0})
-        epi_verified = lead_data["verified"]
-        junk_count = lead_data["junk"]
-        real_cpl = round(spend / epi_verified, 2) if epi_verified > 0 and row.campaign_name not in seen_campaigns else None
+        is_first_row = row.campaign_name not in seen_campaigns
+        epi_verified = lead_data["verified"] if is_first_row else None
+        junk_count = lead_data["junk"] if is_first_row else None
+        real_cpl = round(spend / lead_data["verified"], 2) if lead_data["verified"] and is_first_row else None
 
         campaigns.append(
             CampaignRow(
@@ -134,10 +136,10 @@ async def campaign_performance(
         total_google_reported += google_reported
 
         # Only count each campaign's EPI numbers once for totals
-        if row.campaign_name not in seen_campaigns:
+        if is_first_row:
             seen_campaigns.add(row.campaign_name)
-            total_epi_verified += epi_verified
-            total_junk += junk_count
+            total_epi_verified += lead_data["verified"]
+            total_junk += lead_data["junk"]
 
     # Add gclid-only leads (NULL utm_campaign) as a synthetic row so
     # the summary cards and table always agree.
