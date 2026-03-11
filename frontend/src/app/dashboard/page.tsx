@@ -1571,10 +1571,12 @@ export default function DashboardPage() {
       const nextPage = leadPage + 1;
       const result = await api.getLeads({ page: nextPage, per_page: 25 });
       setLeads((prev) => [...prev, ...result.leads]);
+      setLeadPage(nextPage);
     } catch {
       // surface error so users know the load failed
       console.error("Failed to load more leads");
     } finally {
+      setLoadingMore(false);
     }
   }, [getApi, leadPage]);
 
