@@ -11,7 +11,7 @@ from app.models.site import Site
 from app.models.lead import Lead
 from app.models.pageview import Pageview
 from app.models.user import User
-from app.schemas.site import SiteCreate, SiteResponse
+from app.schemas.site import SiteCreate, SiteUpdate, SiteResponse
 from app.security import get_current_user
 from app.config import settings
 
@@ -95,6 +95,29 @@ async def get_site(
     if not row:
         raise HTTPException(status_code=404, detail="Site not found")
     return _site_response(row.Site, row.leads_count)
+
+
+@router.patch("/{site_id}", response_model=SiteResponse)
+async def update_site(
+    site_id: UUID,
+    req: SiteUpdate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Site).where(Site.id == site_id, Site.agency_id == user.agency_id)
+    )
+    site = result.scalar_one_or_none()
+    if not site:
+        raise HTTPException(status_code=404, detail="Site not found")
+
+    if req.google_ads_customer_id is not None:
+        site.google_ads_customer_id = req.google_ads_customer_id or None
+    if req.meta_ads_account_id is not None:
+        site.meta_ads_account_id = req.meta_ads_account_id or None
+
+    await db.flush()
+    return _site_response(site)
 
 
 @router.get("/{site_id}/pixel-status")

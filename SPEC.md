@@ -14,14 +14,28 @@ March 10, 2026
 ## Files Created
 - `backend/app/routers/campaigns.py` — campaign performance endpoint
 - `backend/app/schemas/campaign.py` — campaign performance response schema
+- `backend/app/routers/google_oauth.py` — Google Ads OAuth connect/disconnect/list
+- `backend/app/routers/meta_oauth.py` — Meta Ads OAuth connect/disconnect/list
+- `backend/app/routers/slack_oauth.py` — Slack OAuth install/disconnect/list
+- `backend/app/models/google_ads_connection.py` — Google Ads connection model
+- `backend/app/models/meta_ads_connection.py` — Meta Ads connection model
+- `backend/app/models/slack_connection.py` — Slack connection model
+- `backend/alembic/versions/005_google_ads_connections.py` — migration
+- `backend/alembic/versions/006_meta_ads_connections.py` — migration
+- `backend/alembic/versions/007_slack_connections.py` — migration
 - `SPEC.md` — this file
 
 ## Files Modified
 - `backend/app/routers/leads.py` — paginated response with total count, default per_page=25
+- `backend/app/routers/campaigns.py` — campaign performance with deduped EPI counts per ad group
+- `backend/app/routers/sites.py` — PATCH endpoint for updating google_ads_customer_id
 - `backend/app/schemas/lead.py` — added PaginatedLeadResponse schema
-- `backend/app/main.py` — registered campaigns router
-- `frontend/src/app/dashboard/page.tsx` — pagination, attribution display, Google Ads tab
-- `frontend/src/lib/api.ts` — pagination params, PaginatedLeads type, getCampaignPerformance method
+- `backend/app/schemas/site.py` — added SiteUpdate schema
+- `backend/app/main.py` — registered campaigns, google_oauth, meta_oauth, slack_oauth routers
+- `backend/app/models/__init__.py` — import connection models
+- `backend/tests/test_leads.py` — updated for paginated response format
+- `frontend/src/app/dashboard/page.tsx` — pagination, attribution display, Google Ads tab, restored OAuth panels
+- `frontend/src/lib/api.ts` — pagination params, PaginatedLeads type, getCampaignPerformance, updateSite methods
 
 ## Files NOT Modified
 - `frontend/src/middleware.ts`

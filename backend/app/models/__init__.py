@@ -7,6 +7,9 @@ from app.models.platform_conversion import PlatformConversion
 from app.models.attribution_comparison import AttributionComparison
 from app.models.invite_code import InviteCode
 from app.models.delivery_channel import DeliveryChannel
+from app.models.google_ads_connection import GoogleAdsConnection
+from app.models.meta_ads_connection import MetaAdsConnection
+from app.models.slack_connection import SlackConnection
 
 __all__ = [
     "Agency",
@@ -18,4 +21,7 @@ __all__ = [
     "AttributionComparison",
     "InviteCode",
     "DeliveryChannel",
+    "GoogleAdsConnection",
+    "MetaAdsConnection",
+    "SlackConnection",
 ]

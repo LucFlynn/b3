@@ -1268,6 +1268,8 @@ function SetupPanel({
           <SiteCardAdIds site={site} getApi={getApi} onSiteUpdated={onSitesRefresh} />
         </div>
       ))}
+      <GoogleAdsPanel getApi={getApi} />
+      <MetaAdsPanel getApi={getApi} />
       <SlackPanel getApi={getApi} />
 
       <McpPanel getApi={getApi} />
