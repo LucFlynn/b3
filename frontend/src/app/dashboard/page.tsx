@@ -1454,6 +1454,9 @@ function GoogleAdsTab({
           {data.discrepancy_pct != null && data.discrepancy_pct > 0 && (
             <p className="text-xs text-orange-500">Google overcounted</p>
           )}
+          {data.discrepancy_pct != null && data.discrepancy_pct < 0 && (
+            <p className="text-xs text-blue-500">EPI found more leads</p>
+          )}
         </div>
       </div>
 
