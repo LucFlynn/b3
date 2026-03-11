@@ -117,7 +117,13 @@ async def update_site(
         site.meta_ads_account_id = req.meta_ads_account_id or None
 
     await db.flush()
-    return _site_response(site)
+
+    count_result = await db.execute(
+        select(func.count()).select_from(Lead).where(Lead.site_id == site_id)
+    )
+    leads_count = count_result.scalar() or 0
+
+    return _site_response(site, leads_count)
 
 
 @router.get("/{site_id}/pixel-status")

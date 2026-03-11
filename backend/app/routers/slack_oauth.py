@@ -1,6 +1,8 @@
 """Slack OAuth V2 flow — install the EPI Slack bot on customer workspaces."""
 
 import logging
+import secrets
+from datetime import datetime, timezone, timedelta
 from urllib.parse import urlencode
 
 import httpx
@@ -11,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_db
+from app.models.oauth_state import OAuthState
 from app.models.slack_connection import SlackConnection
 from app.models.user import User
 from app.models.agency import Agency
@@ -30,16 +33,29 @@ BOT_SCOPES = "chat:write,channels:read,groups:read,im:read"
 
 
 @router.get("/install-url")
-async def get_install_url(user: User = Depends(get_current_user)):
-    """Generate the Slack OAuth install URL."""
+async def get_install_url(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate the Slack OAuth install URL with a random state nonce."""
     if not settings.slack_client_id:
         raise HTTPException(status_code=500, detail="Slack OAuth not configured")
+
+    state = secrets.token_urlsafe(32)
+    nonce = OAuthState(
+        state=state,
+        user_id=user.clerk_user_id or str(user.id),
+        provider="slack",
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=10),
+    )
+    db.add(nonce)
+    await db.flush()
 
     params = {
         "client_id": settings.slack_client_id,
         "redirect_uri": settings.slack_redirect_uri,
         "scope": BOT_SCOPES,
-        "state": user.clerk_user_id or str(user.id),
+        "state": state,
     }
     url = f"{SLACK_AUTH_URL}?{urlencode(params)}"
     return {"install_url": url}
@@ -52,6 +68,23 @@ async def oauth_callback(
     db: AsyncSession = Depends(get_db),
 ):
     """Handle OAuth callback from Slack. Exchange code for bot token."""
+    # Validate state nonce
+    result = await db.execute(
+        select(OAuthState).where(
+            OAuthState.state == state,
+            OAuthState.provider == "slack",
+        )
+    )
+    nonce = result.scalar_one_or_none()
+    if not nonce or nonce.expires_at < datetime.now(timezone.utc):
+        if nonce:
+            await db.delete(nonce)
+        raise HTTPException(status_code=400, detail="Invalid or expired state")
+
+    user_id = nonce.user_id
+    await db.delete(nonce)
+    await db.flush()
+
     # Exchange authorization code for bot token
     async with httpx.AsyncClient() as client:
         resp = await client.post(
@@ -86,7 +119,7 @@ async def oauth_callback(
 
     # Store the connection with encrypted bot token
     connection = SlackConnection(
-        user_id=state,
+        user_id=user_id,
         workspace_id=team_id,
         workspace_name=team_name,
         channel_id=channel_id or None,
@@ -97,11 +130,11 @@ async def oauth_callback(
     db.add(connection)
 
     # Update the user's Agency with workspace_id
-    if state and team_id:
+    if user_id and team_id:
         from app.models.user import User as UserModel
 
         result = await db.execute(
-            select(UserModel).where(UserModel.clerk_user_id == state)
+            select(UserModel).where(UserModel.clerk_user_id == user_id)
         )
         user = result.scalar_one_or_none()
         if user and user.agency_id:
