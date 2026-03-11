@@ -1,6 +1,7 @@
 """Meta Ads OAuth flow — connect/disconnect/list Meta Ads accounts."""
 
 import logging
+import secrets
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlencode
 
@@ -13,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.database import get_db
 from app.models.meta_ads_connection import MetaAdsConnection
+from app.models.oauth_state import OAuthState
 from app.models.user import User
 from app.security import get_current_user, encrypt_pii, decrypt_pii
 
@@ -27,14 +29,27 @@ META_SCOPES = "ads_read,ads_management"
 
 
 @router.get("/auth-url")
-async def get_auth_url(user: User = Depends(get_current_user)):
-    """Generate the Meta OAuth authorization URL."""
+async def get_auth_url(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate the Meta OAuth authorization URL with a random state nonce."""
+    state = secrets.token_urlsafe(32)
+    nonce = OAuthState(
+        state=state,
+        user_id=user.clerk_user_id or str(user.id),
+        provider="meta",
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=10),
+    )
+    db.add(nonce)
+    await db.flush()
+
     params = {
         "client_id": settings.meta_client_id,
         "redirect_uri": settings.meta_redirect_uri,
         "response_type": "code",
         "scope": META_SCOPES,
-        "state": user.clerk_user_id or str(user.id),
+        "state": state,
     }
     url = f"{META_AUTH_URL}?{urlencode(params)}"
     return {"auth_url": url}
@@ -47,6 +62,23 @@ async def oauth_callback(
     db: AsyncSession = Depends(get_db),
 ):
     """Handle OAuth callback from Meta. Exchange code for tokens."""
+    # Validate state nonce
+    result = await db.execute(
+        select(OAuthState).where(
+            OAuthState.state == state,
+            OAuthState.provider == "meta",
+        )
+    )
+    nonce = result.scalar_one_or_none()
+    if not nonce or nonce.expires_at < datetime.now(timezone.utc):
+        if nonce:
+            await db.delete(nonce)
+        raise HTTPException(status_code=400, detail="Invalid or expired state")
+
+    user_id = nonce.user_id
+    await db.delete(nonce)
+    await db.flush()
+
     # Step 1: Exchange authorization code for short-lived token
     async with httpx.AsyncClient() as client:
         resp = await client.get(
@@ -96,7 +128,7 @@ async def oauth_callback(
         # Auto-connect single account
         acct = accounts[0]
         connection = MetaAdsConnection(
-            user_id=state,
+            user_id=user_id,
             meta_ads_account_id=acct["account_id"],
             account_name=acct.get("name", ""),
             access_token_encrypted=encrypt_pii(access_token),
@@ -110,7 +142,7 @@ async def oauth_callback(
     elif len(accounts) == 0:
         # No accounts found — store token anyway
         connection = MetaAdsConnection(
-            user_id=state,
+            user_id=user_id,
             access_token_encrypted=encrypt_pii(access_token),
             token_expiry=token_expiry,
             status="active",
@@ -124,7 +156,7 @@ async def oauth_callback(
     else:
         # Multiple accounts — store as pending, let user pick
         connection = MetaAdsConnection(
-            user_id=state,
+            user_id=user_id,
             access_token_encrypted=encrypt_pii(access_token),
             token_expiry=token_expiry,
             status="pending_selection",

@@ -23,12 +23,16 @@ March 10, 2026
 - `backend/alembic/versions/005_google_ads_connections.py` — migration
 - `backend/alembic/versions/006_meta_ads_connections.py` — migration
 - `backend/alembic/versions/007_slack_connections.py` — migration
+- `backend/app/models/oauth_state.py` — OAuth state nonce model (CSRF protection)
+- `backend/alembic/versions/008_oauth_state_nonces.py` — migration
 - `SPEC.md` — this file
 
 ## Files Modified
 - `backend/app/routers/leads.py` — paginated response with total count, default per_page=25
 - `backend/app/routers/campaigns.py` — campaign performance with deduped EPI counts per ad group
 - `backend/app/routers/sites.py` — PATCH endpoint for updating google_ads_customer_id
+- `backend/app/routers/google_oauth.py` — random state nonce instead of predictable user ID
+- `backend/app/routers/meta_oauth.py` — random state nonce instead of predictable user ID
 - `backend/app/schemas/lead.py` — added PaginatedLeadResponse schema
 - `backend/app/schemas/site.py` — added SiteUpdate schema
 - `backend/app/main.py` — registered campaigns, google_oauth, meta_oauth, slack_oauth routers

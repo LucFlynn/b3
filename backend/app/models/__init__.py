@@ -10,6 +10,7 @@ from app.models.delivery_channel import DeliveryChannel
 from app.models.google_ads_connection import GoogleAdsConnection
 from app.models.meta_ads_connection import MetaAdsConnection
 from app.models.slack_connection import SlackConnection
+from app.models.oauth_state import OAuthState
 
 __all__ = [
     "Agency",
@@ -24,4 +25,5 @@ __all__ = [
     "GoogleAdsConnection",
     "MetaAdsConnection",
     "SlackConnection",
+    "OAuthState",
 ]

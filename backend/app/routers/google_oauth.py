@@ -1,6 +1,7 @@
 """Google Ads OAuth flow — connect/disconnect/list Google Ads accounts."""
 
 import logging
+import secrets
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlencode
 
@@ -13,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.database import get_db
 from app.models.google_ads_connection import GoogleAdsConnection
+from app.models.oauth_state import OAuthState
 from app.models.user import User
 from app.security import get_current_user, encrypt_pii, decrypt_pii
 
@@ -28,8 +30,21 @@ GOOGLE_ADS_SCOPE = "https://www.googleapis.com/auth/adwords"
 
 
 @router.get("/auth-url")
-async def get_auth_url(user: User = Depends(get_current_user)):
-    """Generate the Google OAuth authorization URL."""
+async def get_auth_url(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate the Google OAuth authorization URL with a random state nonce."""
+    state = secrets.token_urlsafe(32)
+    nonce = OAuthState(
+        state=state,
+        user_id=user.clerk_user_id or str(user.id),
+        provider="google",
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=10),
+    )
+    db.add(nonce)
+    await db.flush()
+
     params = {
         "client_id": settings.google_client_id,
         "redirect_uri": settings.google_redirect_uri,
@@ -37,7 +52,7 @@ async def get_auth_url(user: User = Depends(get_current_user)):
         "scope": GOOGLE_ADS_SCOPE,
         "access_type": "offline",
         "prompt": "consent",
-        "state": user.clerk_user_id or str(user.id),
+        "state": state,
     }
     url = f"{GOOGLE_AUTH_URL}?{urlencode(params)}"
     return {"auth_url": url}
@@ -50,6 +65,23 @@ async def oauth_callback(
     db: AsyncSession = Depends(get_db),
 ):
     """Handle OAuth callback from Google. Exchange code for tokens."""
+    # Validate state nonce
+    result = await db.execute(
+        select(OAuthState).where(
+            OAuthState.state == state,
+            OAuthState.provider == "google",
+        )
+    )
+    nonce = result.scalar_one_or_none()
+    if not nonce or nonce.expires_at < datetime.now(timezone.utc):
+        if nonce:
+            await db.delete(nonce)
+        raise HTTPException(status_code=400, detail="Invalid or expired state")
+
+    user_id = nonce.user_id
+    await db.delete(nonce)
+    await db.flush()
+
     # Exchange authorization code for tokens
     async with httpx.AsyncClient() as client:
         resp = await client.post(
@@ -88,7 +120,7 @@ async def oauth_callback(
         # Auto-connect single account
         acct = accounts[0]
         connection = GoogleAdsConnection(
-            user_id=state,
+            user_id=user_id,
             google_ads_customer_id=acct["customer_id"],
             account_name=acct.get("descriptive_name", ""),
             access_token_encrypted=encrypt_pii(access_token),
@@ -103,7 +135,7 @@ async def oauth_callback(
     elif len(accounts) == 0:
         # No accounts found (developer token may lack access) — store tokens anyway
         connection = GoogleAdsConnection(
-            user_id=state,
+            user_id=user_id,
             access_token_encrypted=encrypt_pii(access_token),
             refresh_token_encrypted=encrypt_pii(refresh_token),
             token_expiry=token_expiry,
@@ -118,7 +150,7 @@ async def oauth_callback(
     else:
         # Multiple accounts — store as pending, let user pick
         connection = GoogleAdsConnection(
-            user_id=state,
+            user_id=user_id,
             access_token_encrypted=encrypt_pii(access_token),
             refresh_token_encrypted=encrypt_pii(refresh_token),
             token_expiry=token_expiry,
