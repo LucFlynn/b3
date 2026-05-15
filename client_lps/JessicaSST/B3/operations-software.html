@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Operations Software — Work Orders, Quoting, Dashboards | B-Three Solutions</title>
+  <meta name="description" content="Custom-built operations software for work orders, manufacturing quoting, incident reporting, mobile workforce, and KPI dashboards. Fixed-fee, on-shore development with a one-year warranty.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #1B3A5C;
+      --primary-dark: #0F2440;
+      --accent: #2E86DE;
+      --accent-hover: #1A6FC4;
+      --orange: #F39C12;
+      --orange-hover: #E08A00;
+      --light-bg: #F7F9FC;
+      --card-bg: #FFFFFF;
+      --text: #1A1A2E;
+      --text-muted: #5A6377;
+      --border: #E2E8F0;
+      --success: #27AE60;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 24px rgba(27, 58, 92, 0.08);
+      --shadow-lg: 0 12px 48px rgba(27, 58, 92, 0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+      background: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; line-height: 1.2; }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ─── TOP BAR ─── */
+    .topbar {
+      background: var(--primary-dark);
+      color: #fff;
+      padding: 10px 0;
+      font-size: 14px;
+    }
+    .topbar .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .topbar a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .topbar a:hover { color: var(--orange); }
+    .topbar-badges {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      font-size: 13px;
+      opacity: 0.85;
+    }
+    .topbar-badges span::before {
+      content: "\2713";
+      margin-right: 4px;
+      color: var(--orange);
+      font-weight: 700;
+    }
+
+    /* ─── HEADER ─── */
+    .header {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .logo span { color: var(--accent); }
+
+    /* ─── HERO ─── */
+    .hero {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, #234B73 100%);
+      color: #fff;
+      padding: 80px 0 100px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -40%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(46,134,222,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero .container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 48px;
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+    .hero h1 {
+      font-size: 44px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--orange);
+    }
+    .hero p {
+      font-size: 18px;
+      line-height: 1.7;
+      opacity: 0.9;
+      margin-bottom: 32px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--orange);
+      color: #fff;
+      padding: 16px 36px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 17px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(243, 156, 18, 0.35);
+    }
+    .hero-cta:hover {
+      background: var(--orange-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(243, 156, 18, 0.45);
+    }
+    .hero-cta svg { width: 18px; height: 18px; }
+    .hero-badges {
+      display: flex;
+      gap: 24px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hero-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+    .hero-badge svg {
+      width: 20px;
+      height: 20px;
+      color: var(--orange);
+      flex-shrink: 0;
+    }
+
+    /* Hero Visual — Dashboard Mockup */
+    .hero-visual {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(8px);
+    }
+    .dashboard-mockup {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .dash-panel {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      text-align: center;
+    }
+    .dash-panel.highlight {
+      background: rgba(46,134,222,0.2);
+      border-color: var(--accent);
+    }
+    .dash-panel-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 8px;
+    }
+    .dash-panel-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .dash-panel-bars {
+      display: flex;
+      gap: 4px;
+      align-items: flex-end;
+      justify-content: center;
+      height: 36px;
+    }
+    .dash-bar {
+      width: 12px;
+      border-radius: 3px 3px 0 0;
+      background: var(--accent);
+      opacity: 0.7;
+    }
+    .dash-bar:nth-child(odd) { background: var(--orange); opacity: 0.8; }
+    .dash-panel-list {
+      list-style: none;
+      text-align: left;
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+    }
+    .dash-panel-list li {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .dash-panel-list li:last-child { border-bottom: none; }
+    .dash-status {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dash-status.green { background: var(--success); }
+    .dash-status.yellow { background: var(--orange); }
+    .dash-status.blue { background: var(--accent); }
+    .dash-panel-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .dash-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.6;
+    }
+    .dash-dot:nth-child(2n) { background: var(--orange); opacity: 0.7; }
+    .dash-dot:nth-child(3n) { background: var(--success); opacity: 0.5; }
+    .dash-panel-quote-lines {
+      text-align: left;
+    }
+    .dash-qline {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .dash-qline:last-child { border-bottom: none; }
+    .dash-qline span:last-child { color: var(--orange); font-weight: 600; }
+
+    /* ─── SECTIONS ─── */
+    section { padding: 80px 0; }
+    section.alt { background: var(--light-bg); }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+    .section-subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin-bottom: 48px;
+    }
+    .section-center { text-align: center; }
+    .section-center .section-subtitle { margin-left: auto; margin-right: auto; }
+
+    /* ─── CARDS ─── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      transition: all 0.2s;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, rgba(46,134,222,0.1), rgba(46,134,222,0.05));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+    .card-icon svg { width: 24px; height: 24px; }
+    .card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .card p {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* Pain cards (red accented) */
+    .pain-card .card-icon {
+      background: linear-gradient(135deg, rgba(231,76,60,0.1), rgba(231,76,60,0.05));
+      color: #E74C3C;
+    }
+
+    /* ─── USE CASE CARDS (Hub) ─── */
+    .usecase-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .usecase-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .usecase-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+    .usecase-card .card-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, rgba(46,134,222,0.1), rgba(46,134,222,0.05));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+    .usecase-card .card-icon svg { width: 24px; height: 24px; }
+    .usecase-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .usecase-card p {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .usecase-proof {
+      background: var(--light-bg);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-style: italic;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .usecase-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      margin-top: auto;
+      transition: color 0.2s;
+    }
+    .usecase-cta:hover { color: var(--accent-hover); }
+    .usecase-cta svg { width: 16px; height: 16px; }
+
+    /* ─── COMPARISON TABLE ─── */
+    .compare-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .compare-table thead th {
+      background: var(--primary);
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 18px 24px;
+      text-align: left;
+    }
+    .compare-table thead th:first-child {
+      width: 50%;
+    }
+    .compare-table tbody td {
+      padding: 16px 24px;
+      font-size: 15px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .compare-table tbody tr:last-child td { border-bottom: none; }
+    .compare-table tbody tr:nth-child(even) { background: var(--light-bg); }
+    .compare-table tbody td:first-child {
+      color: var(--text-muted);
+    }
+    .compare-table tbody td:last-child {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .compare-table .compare-icon {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .compare-x { color: #E74C3C; }
+    .compare-check { color: var(--success); }
+
+    /* ─── STEPS ─── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+    .steps::before {
+      content: "";
+      position: absolute;
+      top: 36px;
+      left: 15%;
+      right: 15%;
+      height: 2px;
+      background: var(--border);
+      z-index: 0;
+    }
+    .step {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .step-num {
+      width: 72px;
+      height: 72px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 auto 20px;
+      border: 4px solid #fff;
+      box-shadow: var(--shadow);
+    }
+    .step h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .step p {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .step-tag {
+      display: inline-block;
+      background: rgba(46,134,222,0.1);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 50px;
+      margin-top: 12px;
+    }
+
+    /* ─── PROOF / TRUST ─── */
+    .proof-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 720px;
+      margin: 0 auto 40px;
+    }
+    .proof-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      border-left: 4px solid var(--accent);
+    }
+    .proof-card h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+    .proof-card .proof-tag {
+      display: inline-block;
+      background: var(--light-bg);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 50px;
+      margin-bottom: 12px;
+    }
+    .proof-card p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .trust-badges {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .trust-badge svg {
+      width: 20px;
+      height: 20px;
+      color: var(--success);
+      flex-shrink: 0;
+    }
+
+    /* ─── FAQ ─── */
+    .faq-list {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 24px 0;
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faq-q::after {
+      content: "+";
+      font-size: 22px;
+      color: var(--accent);
+      font-weight: 400;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+    .faq-a {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.7;
+      padding-right: 40px;
+    }
+
+    /* ─── CTA SECTION ─── */
+    .cta-section {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      color: #fff;
+      padding: 80px 0;
+    }
+    .cta-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 48px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .cta-content h2 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .cta-content p {
+      font-size: 17px;
+      opacity: 0.85;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .cta-checklist {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+    .cta-checklist li {
+      padding: 8px 0;
+      font-size: 15px;
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cta-checklist li::before {
+      content: "\2713";
+      color: var(--orange);
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .cta-guarantee {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      font-size: 14px;
+      opacity: 0.8;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cta-guarantee svg { width: 20px; height: 20px; color: var(--orange); flex-shrink: 0; }
+
+    /* Form */
+    .form-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 36px;
+      box-shadow: var(--shadow-lg);
+    }
+    .form-card h3 {
+      color: var(--primary);
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .form-card .form-sub {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--light-bg);
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(46,134,222,0.1);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .checkbox-group {
+      margin-bottom: 16px;
+    }
+    .checkbox-group label.group-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .form-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .form-submit:hover {
+      background: var(--orange-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(243,156,18,0.35);
+    }
+    .form-note {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      background: var(--primary-dark);
+      color: rgba(255,255,255,0.6);
+      padding: 32px 0;
+      font-size: 13px;
+      text-align: center;
+    }
+    .footer a { color: rgba(255,255,255,0.8); text-decoration: none; }
+
+    /* ─── STICKY CTA (mobile) ─── */
+    .sticky-cta {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--primary-dark);
+      padding: 12px 20px;
+      z-index: 200;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+    }
+    .sticky-cta-text {
+      color: rgba(255,255,255,0.8);
+      font-size: 12px;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .sticky-cta a {
+      display: block;
+      background: var(--orange);
+      color: #fff;
+      text-align: center;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 16px;
+      text-decoration: none;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .hero .container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .hero { padding: 60px 0 80px; }
+      .hero h1 { font-size: 32px; }
+      .hero-visual { max-width: 100%; }
+      .steps { grid-template-columns: 1fr; gap: 40px; }
+      .steps::before { display: none; }
+      .section-title { font-size: 28px; }
+      .form-row { grid-template-columns: 1fr; }
+      .checkbox-grid { grid-template-columns: 1fr; }
+      .trust-badges { justify-content: flex-start; }
+      .sticky-cta { display: block; }
+      .topbar-badges { display: none; }
+      .compare-table { font-size: 14px; }
+      .compare-table thead th { padding: 14px 16px; font-size: 14px; }
+      .compare-table tbody td { padding: 12px 16px; font-size: 13px; }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 28px; }
+      section { padding: 60px 0; }
+      .cta-section { padding: 60px 0 100px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="container">
+      <a href="tel:+14125551234">Call Us: (412) 555-1234</a>
+      <div class="topbar-badges">
+        <span>100% On-Shore Development</span>
+        <span>Fixed-Fee Pricing</span>
+        <span>One-Year Warranty</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container">
+      <a href="#" class="logo">B-Three <span>Solutions</span></a>
+      <a href="tel:+14125551234" style="color:var(--primary);font-weight:600;font-size:15px;text-decoration:none;">(412) 555-1234</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-text">
+        <h1>Custom Operations Software — Built Exactly How <em>Your Team Works</em></h1>
+        <p>Work orders, quoting, field management, incident reporting, dashboards — we build the system your off-the-shelf tools can't be.</p>
+        <a href="#contact" class="hero-cta">
+          Tell Us What You Need — Free Consultation
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+        </a>
+        <div class="hero-badges">
+          <div class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0Z" /></svg>
+            Pittsburgh, PA
+          </div>
+          <div class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+            Fixed-Fee Guarantee
+          </div>
+          <div class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0 1 16.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.023 6.023 0 0 1-2.77.672c-.99 0-1.932-.223-2.77-.672" /></svg>
+            1-Year Warranty
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual: Operations Dashboard Mockup -->
+      <div class="hero-visual">
+        <div class="dashboard-mockup">
+          <div class="dash-panel highlight">
+            <div class="dash-panel-label">Queue</div>
+            <div class="dash-panel-title">Work Orders</div>
+            <ul class="dash-panel-list">
+              <li>WO-1042 Pump Repair <span class="dash-status green"></span></li>
+              <li>WO-1043 Line 3 Maint. <span class="dash-status yellow"></span></li>
+              <li>WO-1044 HVAC Inspect <span class="dash-status blue"></span></li>
+              <li>WO-1045 Dock Repair <span class="dash-status yellow"></span></li>
+            </ul>
+          </div>
+          <div class="dash-panel">
+            <div class="dash-panel-label">Analytics</div>
+            <div class="dash-panel-title">KPI Charts</div>
+            <div class="dash-panel-bars">
+              <div class="dash-bar" style="height:60%"></div>
+              <div class="dash-bar" style="height:85%"></div>
+              <div class="dash-bar" style="height:45%"></div>
+              <div class="dash-bar" style="height:100%"></div>
+              <div class="dash-bar" style="height:70%"></div>
+              <div class="dash-bar" style="height:55%"></div>
+              <div class="dash-bar" style="height:90%"></div>
+            </div>
+          </div>
+          <div class="dash-panel">
+            <div class="dash-panel-label">Tracking</div>
+            <div class="dash-panel-title">Field Map</div>
+            <div class="dash-panel-dots">
+              <div class="dash-dot"></div>
+              <div class="dash-dot"></div>
+              <div class="dash-dot"></div>
+              <div class="dash-dot"></div>
+              <div class="dash-dot"></div>
+              <div class="dash-dot"></div>
+              <div class="dash-dot"></div>
+              <div class="dash-dot"></div>
+              <div class="dash-dot"></div>
+            </div>
+          </div>
+          <div class="dash-panel highlight">
+            <div class="dash-panel-label">Pricing</div>
+            <div class="dash-panel-title">Quote Builder</div>
+            <div class="dash-panel-quote-lines">
+              <div class="dash-qline"><span>Part A-204</span><span>$1,240</span></div>
+              <div class="dash-qline"><span>Labor (16h)</span><span>$2,080</span></div>
+              <div class="dash-qline"><span>Freight</span><span>$340</span></div>
+              <div class="dash-qline" style="border-top:1px solid rgba(255,255,255,0.2);padding-top:6px;font-weight:700;color:#fff"><span>Total</span><span>$3,660</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="alt">
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">The Problem</div>
+        <h2 class="section-title">Off-the-Shelf Software Wasn't Built for Your Operations</h2>
+        <p class="section-subtitle">You've tried adapting. You've tried workarounds. Here's what it actually looks like.</p>
+      </div>
+      <div class="card-grid">
+        <div class="card pain-card">
+          <div class="card-icon">
+            <!-- Heroicon: exclamation-triangle -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+          </div>
+          <h3>"We Outgrew It 3 Years Ago"</h3>
+          <p>Your team runs on spreadsheets, sticky notes, and workarounds because the "official" system can't handle how you actually work. The gaps keep getting bigger.</p>
+        </div>
+        <div class="card pain-card">
+          <div class="card-icon">
+            <!-- Heroicon: chart-bar -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+          </div>
+          <h3>"We Can't Get the Reports We Need"</h3>
+          <p>Pulling useful data takes hours — if it's even possible. Your KPIs live in someone's head or a spreadsheet that's always out of date. Decision-making runs on guesswork.</p>
+        </div>
+        <div class="card pain-card">
+          <div class="card-icon">
+            <!-- Heroicon: signal-slash -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M10.5 6.5a7.5 7.5 0 0 1 7 4.5M6.5 6.5C4.5 8 3.5 10 3.5 12.5m7.5-9.5c5 0 9.5 3 11 7.5m-4-3.5a4.5 4.5 0 0 1 2.5 3.5M8.5 11a4.5 4.5 0 0 1 3-1.5M12 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" /></svg>
+          </div>
+          <h3>"Field and Office Are on Different Planets"</h3>
+          <p>Mobile workers can't access what they need. The office can't see what's happening in the field. Status updates come via phone calls and text messages — if they come at all.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USE CASE HUB -->
+  <section>
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">What We Build</div>
+        <h2 class="section-title">What Are You Looking to Build?</h2>
+        <p class="section-subtitle">Every operations team is different. Tell us which problem to solve first — we'll build software that fits exactly.</p>
+      </div>
+      <div class="usecase-grid">
+
+        <!-- Card 1: Work Order Management -->
+        <div class="usecase-card">
+          <div class="card-icon">
+            <!-- Heroicon: clipboard-document-check -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" /></svg>
+          </div>
+          <h3>Work Order Management</h3>
+          <p>Stop chasing paper and spreadsheets. We build custom work order systems — create, assign, track, and close work orders from desktop or mobile. Real-time status, photo attachments, digital signatures, automated routing.</p>
+          <div class="usecase-proof">"We built a smartphone-based work order processing app that dramatically sped up turnaround times."</div>
+          <a href="#contact" class="usecase-cta">
+            Get a Quote
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+          </a>
+        </div>
+
+        <!-- Card 2: Manufacturing Quoting Software -->
+        <div class="usecase-card">
+          <div class="card-icon">
+            <!-- Heroicon: calculator -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25v-.008Zm2.25-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H12.75v-.008Zm0 2.25h.008v.008H12.75v-.008ZM15.75 9h.008v.008h-.008V9Zm0 2.25h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008v-.008Zm-2.25-4.5h.008v.008h-.008V9Zm0 2.25h.008v.008h-.008v-.008ZM6 18.75a2.25 2.25 0 0 1-2.25-2.25V6A2.25 2.25 0 0 1 6 3.75h12A2.25 2.25 0 0 1 20.25 6v10.5A2.25 2.25 0 0 1 18 18.75H6Z" /></svg>
+          </div>
+          <h3>Manufacturing Quoting Software</h3>
+          <p>Your quoting process is too slow and error-prone. We build custom quoting systems that pull from your parts database, apply your pricing rules, and generate professional quotes in minutes — not days.</p>
+          <a href="#contact" class="usecase-cta">
+            Get a Quote
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+          </a>
+        </div>
+
+        <!-- Card 3: Incident Reporting & Response -->
+        <div class="usecase-card">
+          <div class="card-icon">
+            <!-- Heroicon: shield-exclamation -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+          </div>
+          <h3>Incident Reporting &amp; Response</h3>
+          <p>Paper forms and email chains aren't incident management. We build real-time incident reporting platforms — capture, escalate, track, and resolve. Mobile-first for field teams, dashboard-first for managers.</p>
+          <div class="usecase-proof">"Our Sight On Scene platform redefined school safety with interactive mapping and real-time intelligence."</div>
+          <a href="#contact" class="usecase-cta">
+            Get a Quote
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+          </a>
+        </div>
+
+        <!-- Card 4: Mobile Workforce Management -->
+        <div class="usecase-card">
+          <div class="card-icon">
+            <!-- Heroicon: device-phone-mobile -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>
+          </div>
+          <h3>Mobile Workforce Management</h3>
+          <p>Your field team needs more than a calendar and a phone. We build mobile platforms for dispatching, tracking, time entry, inspections, and field reporting — connected to your back office in real time.</p>
+          <a href="#contact" class="usecase-cta">
+            Get a Quote
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+          </a>
+        </div>
+
+        <!-- Card 5: Operational Dashboards & KPI Reporting -->
+        <div class="usecase-card">
+          <div class="card-icon">
+            <!-- Heroicon: presentation-chart-line -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605" /></svg>
+          </div>
+          <h3>Operational Dashboards &amp; KPI Reporting</h3>
+          <p>Stop waiting for someone to pull a report. We build real-time operational dashboards — production status, field activity, financial KPIs, compliance metrics — updated live.</p>
+          <div class="usecase-proof">"We built automated reporting systems for county and school police departments — replacing manual reporting with real-time dashboards."</div>
+          <a href="#contact" class="usecase-cta">
+            Get a Quote
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON TABLE -->
+  <section class="alt">
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">Why Custom</div>
+        <h2 class="section-title">Why Teams Choose B-Three Over Off-the-Shelf</h2>
+        <p class="section-subtitle">Side-by-side: what you get with generic software vs. what you get when we build it for you.</p>
+      </div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Off-the-Shelf Software</th>
+            <th>B-Three Custom Build</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="compare-icon compare-x">&#10007;</span> You adapt to the software</td>
+            <td><span class="compare-icon compare-check">&#10003;</span> Software adapts to you</td>
+          </tr>
+          <tr>
+            <td><span class="compare-icon compare-x">&#10007;</span> Monthly per-seat fees forever</td>
+            <td><span class="compare-icon compare-check">&#10003;</span> One-time fixed fee, you own it</td>
+          </tr>
+          <tr>
+            <td><span class="compare-icon compare-x">&#10007;</span> Features you don't need, missing ones you do</td>
+            <td><span class="compare-icon compare-check">&#10003;</span> Every feature is one you asked for</td>
+          </tr>
+          <tr>
+            <td><span class="compare-icon compare-x">&#10007;</span> Generic support queue</td>
+            <td><span class="compare-icon compare-check">&#10003;</span> Direct access to the team that built it</td>
+          </tr>
+          <tr>
+            <td><span class="compare-icon compare-x">&#10007;</span> No warranty</td>
+            <td><span class="compare-icon compare-check">&#10003;</span> One-year warranty included</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section>
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">How It Works</div>
+        <h2 class="section-title">From Conversation to Custom Software</h2>
+        <p class="section-subtitle">A simple, transparent process — no surprises at any stage.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Free Consultation</h3>
+          <p>Tell us what you need. We map your requirements, identify priorities, and scope the project — at no cost.</p>
+          <span class="step-tag">No cost</span>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Fixed-Fee Proposal</h3>
+          <p>You get a firm price and timeline — not an estimate that balloons halfway through the project.</p>
+          <span class="step-tag">No surprises</span>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Build, Test, Deploy</h3>
+          <p>Agile sprints with regular demos so you see progress. Deployment plus a full one-year warranty on everything.</p>
+          <span class="step-tag">1-year warranty</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOCIAL PROOF -->
+  <section class="alt">
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">Proven Results</div>
+        <h2 class="section-title">Real Systems We've Built for Real Operations Teams</h2>
+        <p class="section-subtitle">Custom operations software — in production, solving real problems, right now.</p>
+      </div>
+      <div class="proof-grid">
+        <div class="proof-card">
+          <span class="proof-tag">Operations / Field Service</span>
+          <h4>Work Order Processing — Smartphone App</h4>
+          <p>Replaced paper-based work orders with a mobile application. Field workers create, update, and close work orders from their phones — synced to the back office in real time. Dramatically sped up turnaround times.</p>
+        </div>
+        <div class="proof-card">
+          <span class="proof-tag">Government / Law Enforcement</span>
+          <h4>Automated Reporting — Law Enforcement</h4>
+          <p>Built automated reporting systems for a county sheriff's office and school police departments. Eliminated manual, paper-based reporting and replaced it with real-time dashboards and data flow from field to command.</p>
+        </div>
+        <div class="proof-card">
+          <span class="proof-tag">Inspections / Compliance</span>
+          <h4>Cloud-Based Inspection Platform</h4>
+          <p>Developed a cloud-based inspection system — mobile-friendly, auto-scheduled, compliance-ready. Field inspectors complete and submit from any device. Managers see results in real time.</p>
+        </div>
+      </div>
+      <div class="trust-badges">
+        <div class="trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          100% On-Shore — Pittsburgh, PA
+        </div>
+        <div class="trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          Fixed-Fee — No Hourly Billing
+        </div>
+        <div class="trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          One-Year Warranty Included
+        </div>
+        <div class="trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          Serving Clients Nationwide
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section>
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">FAQ</div>
+        <h2 class="section-title">Common Questions</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q">How much does custom operations software cost?</div>
+          <p class="faq-a">Most operations software projects fall between $75K and $300K depending on scope and complexity. We provide a fixed-fee quote after a free consultation — no surprises, no hourly billing.</p>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How long does development take?</div>
+          <p class="faq-a">Typically 3–6 months from kickoff to deployment. We work in agile sprints and deliver working demos every 2–3 weeks, so you see progress throughout the project.</p>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Can you build mobile apps for field teams?</div>
+          <p class="faq-a">Yes. We build mobile applications for iOS, Android, and specialized field devices. Whether it's work order management, inspections, or time entry — we build for the way your field team actually works.</p>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What if we already have some systems in place?</div>
+          <p class="faq-a">We build around and integrate with your existing tools. No rip-and-replace. We connect to your current databases, ERPs, and workflows so the new system fits into your operation — not the other way around.</p>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Do you work with manufacturing companies?</div>
+          <p class="faq-a">Yes. We build custom quoting software, production tracking systems, shop floor dashboards, and more for manufacturers. If off-the-shelf tools don't fit your process, that's exactly what we solve.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA + FORM -->
+  <section class="cta-section" id="contact">
+    <div class="container">
+      <div class="cta-grid">
+        <div class="cta-content">
+          <h2>Your Operations Deserve Software That Actually Works</h2>
+          <p>Get a free consultation. Tell us what's broken, what's missing, and what you wish you had — we'll tell you exactly what it takes to build it.</p>
+          <ul class="cta-checklist">
+            <li>Free consultation — no cost, no commitment</li>
+            <li>A senior developer scopes your project (not a salesperson)</li>
+            <li>Written fixed-fee proposal with clear timeline</li>
+            <li>One-year warranty on everything we deliver</li>
+            <li>100% on-shore team — Pittsburgh, PA</li>
+          </ul>
+          <div class="cta-guarantee">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+            Fixed-fee guarantee. We respond within one business day.
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3>Get Your Free Consultation</h3>
+          <p class="form-sub">Tell us what you need — we'll tell you what it takes.</p>
+          <form action="#" method="POST">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" required placeholder="John Smith">
+              </div>
+              <div class="form-group">
+                <label for="company">Company *</label>
+                <input type="text" id="company" name="company" required placeholder="Acme Corp">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" required placeholder="john@acme.com">
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" placeholder="(412) 555-1234">
+              </div>
+            </div>
+            <div class="checkbox-group">
+              <label class="group-label">What do you need? (select all that apply)</label>
+              <div class="checkbox-grid">
+                <label class="checkbox-item">
+                  <input type="checkbox" name="needs" value="work-orders">
+                  Work order management
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="needs" value="quoting">
+                  Manufacturing quoting
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="needs" value="incident-reporting">
+                  Incident reporting
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="needs" value="mobile-workforce">
+                  Mobile workforce / field mgmt
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="needs" value="dashboards">
+                  Dashboards &amp; reporting
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="needs" value="other">
+                  Other / not sure
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="details">Tell us about your project (optional)</label>
+              <textarea id="details" name="details" placeholder="E.g., We need a custom work order system for our maintenance team..."></textarea>
+            </div>
+            <button type="submit" class="form-submit">Get My Free Consultation</button>
+            <p class="form-note">No obligation. We respond within one business day.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 B-Three Solutions. Pittsburgh, PA. All rights reserved. | <a href="tel:+14125551234">(412) 555-1234</a></p>
+    </div>
+  </footer>
+
+  <!-- STICKY CTA (mobile) -->
+  <div class="sticky-cta">
+    <div class="sticky-cta-text">Need custom operations software?</div>
+    <a href="#contact">Get Your Free Consultation</a>
+  </div>
+
+</body>
+</html>

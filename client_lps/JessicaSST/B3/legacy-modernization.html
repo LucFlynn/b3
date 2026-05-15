@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legacy Software Modernization | B-Three Solutions — Pittsburgh, PA</title>
+  <meta name="description" content="Modernize legacy systems, migrate outdated applications, and consolidate scattered data — on time, on budget, with a one-year warranty. Fixed-fee, 100% on-shore development.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #1B3A5C;
+      --primary-dark: #0F2440;
+      --accent: #2E86DE;
+      --accent-hover: #1A6FC4;
+      --orange: #F39C12;
+      --orange-hover: #E08A00;
+      --light-bg: #F7F9FC;
+      --card-bg: #FFFFFF;
+      --text: #1A1A2E;
+      --text-muted: #5A6377;
+      --border: #E2E8F0;
+      --success: #27AE60;
+      --danger: #E74C3C;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 24px rgba(27, 58, 92, 0.08);
+      --shadow-lg: 0 12px 48px rgba(27, 58, 92, 0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+      background: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; line-height: 1.2; }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ─── TOP BAR ─── */
+    .topbar {
+      background: var(--primary-dark);
+      color: #fff;
+      padding: 10px 0;
+      font-size: 14px;
+    }
+    .topbar .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .topbar a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .topbar a:hover { color: var(--orange); }
+    .topbar-badges {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      font-size: 13px;
+      opacity: 0.85;
+    }
+    .topbar-badges span::before {
+      content: "\2713";
+      margin-right: 4px;
+      color: var(--orange);
+      font-weight: 700;
+    }
+
+    /* ─── HEADER ─── */
+    .header {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .logo span { color: var(--accent); }
+    .header-phone {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+    }
+    .header-phone:hover { color: var(--accent); }
+
+    /* ─── HERO ─── */
+    .hero {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, #234B73 100%);
+      color: #fff;
+      padding: 80px 0 100px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -40%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(46,134,222,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero .container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 48px;
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+    .hero h1 {
+      font-size: 44px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--orange);
+    }
+    .hero p {
+      font-size: 18px;
+      line-height: 1.7;
+      opacity: 0.9;
+      margin-bottom: 32px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--orange);
+      color: #fff;
+      padding: 16px 36px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 17px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(243, 156, 18, 0.35);
+    }
+    .hero-cta:hover {
+      background: var(--orange-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(243, 156, 18, 0.45);
+    }
+    .hero-cta svg { width: 18px; height: 18px; }
+    .hero-badges {
+      display: flex;
+      gap: 24px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hero-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+    .hero-badge svg {
+      width: 20px;
+      height: 20px;
+      color: var(--orange);
+      flex-shrink: 0;
+    }
+
+    /* Hero Visual — Before/After Transformation */
+    .hero-visual {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 32px;
+      backdrop-filter: blur(8px);
+    }
+    .transform-diagram {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    .transform-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .transform-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 4px;
+      opacity: 0.6;
+    }
+    .transform-label.after { color: var(--orange); opacity: 1; }
+    .transform-node {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      color: rgba(255,255,255,0.9);
+    }
+    .transform-node.old {
+      border-color: rgba(231,76,60,0.4);
+      background: rgba(231,76,60,0.1);
+    }
+    .transform-node.new {
+      border-color: rgba(46,134,222,0.5);
+      background: rgba(46,134,222,0.15);
+      color: #fff;
+    }
+    .transform-hub {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, var(--accent), #1A6FC4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      line-height: 1.3;
+      box-shadow: 0 0 40px rgba(46,134,222,0.4);
+      position: relative;
+    }
+    .transform-hub::before, .transform-hub::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 16px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .transform-hub::before { left: -16px; }
+    .transform-hub::after { right: -16px; }
+
+    /* ─── SECTIONS ─── */
+    section { padding: 80px 0; }
+    section.alt { background: var(--light-bg); }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+    .section-subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin-bottom: 48px;
+    }
+    .section-center { text-align: center; }
+    .section-center .section-subtitle { margin-left: auto; margin-right: auto; }
+
+    /* ─── CARDS ─── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .card-grid-4 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      transition: all 0.2s;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, rgba(46,134,222,0.1), rgba(46,134,222,0.05));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+    .card-icon svg { width: 24px; height: 24px; }
+    .card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .card p {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* Pain cards (red accented) */
+    .pain-card .card-icon {
+      background: linear-gradient(135deg, rgba(231,76,60,0.1), rgba(231,76,60,0.05));
+      color: #E74C3C;
+    }
+
+    /* ─── CHECKLIST SECTION ─── */
+    .checklist-section {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .checklist-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .checklist-subtitle {
+      font-size: 17px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .checklist-items {
+      list-style: none;
+    }
+    .checklist-items li {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px 24px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .checklist-items li:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow);
+    }
+    .checklist-items li svg {
+      width: 24px;
+      height: 24px;
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .checklist-cta {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 17px;
+      color: var(--text-muted);
+    }
+    .checklist-cta a {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .checklist-cta a:hover { text-decoration: underline; }
+
+    /* ─── STEPS ─── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+    .steps::before {
+      content: "";
+      position: absolute;
+      top: 36px;
+      left: 15%;
+      right: 15%;
+      height: 2px;
+      background: var(--border);
+      z-index: 0;
+    }
+    .step {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .step-num {
+      width: 72px;
+      height: 72px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 auto 20px;
+      border: 4px solid #fff;
+      box-shadow: var(--shadow);
+    }
+    .step h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .step p {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .step-tag {
+      display: inline-block;
+      background: rgba(46,134,222,0.1);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 50px;
+      margin-top: 12px;
+    }
+
+    /* ─── PROOF / TRUST ─── */
+    .proof-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 720px;
+      margin: 0 auto 40px;
+    }
+    .proof-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      border-left: 4px solid var(--accent);
+    }
+    .proof-card h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+    .proof-card .proof-tag {
+      display: inline-block;
+      background: var(--light-bg);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 50px;
+      margin-bottom: 12px;
+    }
+    .proof-card p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .trust-badges {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .trust-badge svg {
+      width: 20px;
+      height: 20px;
+      color: var(--success);
+      flex-shrink: 0;
+    }
+
+    /* ─── FAQ ─── */
+    .faq-list {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 24px 0;
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faq-q::after {
+      content: "+";
+      font-size: 22px;
+      color: var(--accent);
+      font-weight: 400;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+    .faq-a {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.7;
+      padding-right: 40px;
+    }
+
+    /* ─── CTA SECTION ─── */
+    .cta-section {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      color: #fff;
+      padding: 80px 0;
+    }
+    .cta-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 48px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .cta-content h2 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .cta-content p {
+      font-size: 17px;
+      opacity: 0.85;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .cta-checklist {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+    .cta-checklist li {
+      padding: 8px 0;
+      font-size: 15px;
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cta-checklist li::before {
+      content: "\2713";
+      color: var(--orange);
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .cta-guarantee {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      font-size: 14px;
+      opacity: 0.8;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cta-guarantee svg { width: 20px; height: 20px; color: var(--orange); flex-shrink: 0; }
+
+    /* Form */
+    .form-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 36px;
+      box-shadow: var(--shadow-lg);
+    }
+    .form-card h3 {
+      color: var(--primary);
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .form-card .form-sub {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--light-bg);
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(46,134,222,0.1);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .form-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .form-submit:hover {
+      background: var(--orange-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(243,156,18,0.35);
+    }
+    .form-note {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      background: var(--primary-dark);
+      color: rgba(255,255,255,0.6);
+      padding: 32px 0;
+      font-size: 13px;
+      text-align: center;
+    }
+    .footer a { color: rgba(255,255,255,0.8); text-decoration: none; }
+
+    /* ─── STICKY CTA (mobile) ─── */
+    .sticky-cta {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--primary-dark);
+      padding: 12px 20px;
+      z-index: 200;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+    }
+    .sticky-cta-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .sticky-cta-text {
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .sticky-cta a {
+      display: block;
+      background: var(--orange);
+      color: #fff;
+      text-align: center;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .hero .container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .hero { padding: 60px 0 80px; }
+      .hero h1 { font-size: 32px; }
+      .hero-visual { max-width: 100%; }
+      .steps { grid-template-columns: 1fr; gap: 40px; }
+      .steps::before { display: none; }
+      .section-title { font-size: 28px; }
+      .checklist-title { font-size: 26px; }
+      .form-row { grid-template-columns: 1fr; }
+      .trust-badges { justify-content: flex-start; }
+      .sticky-cta { display: block; }
+      .topbar-badges { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 28px; }
+      section { padding: 60px 0; }
+      .cta-section { padding: 60px 0 100px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="container">
+      <a href="tel:+14125551234">(412) 555-1234</a>
+      <div class="topbar-badges">
+        <span>100% On-Shore Development</span>
+        <span>Fixed-Fee Pricing</span>
+        <span>One-Year Warranty</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container">
+      <a href="#" class="logo">B-Three <span>Solutions</span></a>
+      <a href="tel:+14125551234" class="header-phone">(412) 555-1234</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-text">
+        <h1>Your Software Is Holding Your Business Back. Let's Fix It — <em>Without Starting Over.</em></h1>
+        <p>We modernize legacy systems, migrate outdated applications, and consolidate scattered data — on time, on budget, with a one-year warranty.</p>
+        <a href="#contact" class="hero-cta">
+          Get a Free Modernization Assessment
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+        </a>
+        <div class="hero-badges">
+          <div class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0Z" /></svg>
+            Pittsburgh, PA
+          </div>
+          <div class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+            Fixed-Fee Guarantee
+          </div>
+          <div class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0 1 16.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.023 6.023 0 0 1-2.77.672c-.99 0-1.932-.223-2.77-.672" /></svg>
+            1-Year Warranty
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual: Before/After Transformation Diagram -->
+      <div class="hero-visual">
+        <div class="transform-diagram">
+          <div class="transform-col">
+            <div class="transform-label">Before</div>
+            <div class="transform-node old">Outdated UI</div>
+            <div class="transform-node old">Manual Processes</div>
+            <div class="transform-node old">Siloed Data</div>
+            <div class="transform-node old">Vendor Lock-In</div>
+          </div>
+          <div class="transform-hub">B-Three<br>Modernize</div>
+          <div class="transform-col">
+            <div class="transform-label after">After</div>
+            <div class="transform-node new">Modern Interface</div>
+            <div class="transform-node new">Automated Workflows</div>
+            <div class="transform-node new">Unified Data</div>
+            <div class="transform-node new">Full Ownership</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="alt">
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">The Problem</div>
+        <h2 class="section-title">That Legacy System Isn't Going Away on Its Own</h2>
+        <p class="section-subtitle">You've been working around it for years. But the cost of doing nothing keeps climbing.</p>
+      </div>
+      <div class="card-grid">
+        <div class="card pain-card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+          </div>
+          <h3>It Works... Barely</h3>
+          <p>You've built workarounds for workarounds. Training new employees takes weeks because nobody remembers how things are supposed to work. The system does the job, but barely — and it slows everyone down.</p>
+        </div>
+        <div class="card pain-card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+          </div>
+          <h3>You Can't Get Data Out</h3>
+          <p>Reports that should take minutes take days. Your data is trapped in silos, and the only way to see the full picture is copying and pasting into spreadsheets. Your best decisions are based on incomplete information.</p>
+        </div>
+        <div class="card pain-card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" /></svg>
+          </div>
+          <h3>A Full Replacement Feels Impossible</h3>
+          <p>You got quoted $500K+ for a full rebuild. The timeline was 18 months. The risk was enormous. So you keep patching, keep working around it, and keep hoping it holds together one more year.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section>
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">What We Do</div>
+        <h2 class="section-title">Modernize What You Have. Replace Only What You Must.</h2>
+        <p class="section-subtitle">B-Three specializes in making old software work like new — without the risk and cost of a full replacement. We preserve what works and upgrade what doesn't.</p>
+      </div>
+      <div class="card-grid-4">
+        <div class="card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" /></svg>
+          </div>
+          <h3>Legacy Software Modernization</h3>
+          <p>New UI, new integrations, modern architecture — layered on top of the proven business logic you've relied on for years. Your team gets a system that feels new without losing what works.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" /></svg>
+          </div>
+          <h3>Application Migration</h3>
+          <p>On-prem to cloud. Desktop to web. Single-tenant to multi-tenant. We move your application to the right platform with zero data loss and minimal disruption to your team.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+          </div>
+          <h3>Data Consolidation</h3>
+          <p>Five systems, one source of truth. We eliminate duplicate entry, reconcile conflicting records, and give your team a single, reliable place to find the data they need.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" /></svg>
+          </div>
+          <h3>Data Warehouse Development</h3>
+          <p>A centralized, queryable data layer built for dashboards, BI tools, and reporting. Pull data from every system into one place and finally see the full picture.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IS THIS RIGHT FOR ME? -->
+  <section class="alt">
+    <div class="container">
+      <div class="checklist-section">
+        <div class="section-label" style="text-align:center;">Is This Right For Me?</div>
+        <h2 class="checklist-title">If Any of These Sound Familiar, We Should Talk</h2>
+        <p class="checklist-subtitle">Most of our clients have been dealing with these problems for years before reaching out.</p>
+        <ul class="checklist-items">
+          <li>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+            Your core software is 10+ years old and showing its age
+          </li>
+          <li>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+            Your original vendor is gone, retired, or unresponsive
+          </li>
+          <li>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+            You've been quoted a full rebuild but the cost and risk feel too high
+          </li>
+          <li>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+            Your data is spread across systems that don't talk to each other
+          </li>
+          <li>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+            Your team spends more time working around the system than in it
+          </li>
+        </ul>
+        <p class="checklist-cta">Sound like your situation? <a href="#contact">Get a free modernization assessment.</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section>
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">How It Works</div>
+        <h2 class="section-title">A Clear Path From Legacy to Modern</h2>
+        <p class="section-subtitle">No surprises. No runaway timelines. Just a straightforward process that keeps you in control.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Free Modernization Assessment</h3>
+          <p>We audit your current systems, map dependencies, and identify what needs to change — and what doesn't.</p>
+          <span class="step-tag">No cost</span>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Fixed-Fee Proposal</h3>
+          <p>You get a clear scope, a firm timeline, and a fixed price. Not an estimate — a commitment.</p>
+          <span class="step-tag">No surprises</span>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Phased Delivery + 1-Year Warranty</h3>
+          <p>We deliver in phases so you see progress before full completion. Everything backed by a one-year warranty.</p>
+          <span class="step-tag">1-year warranty</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOCIAL PROOF -->
+  <section class="alt">
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">Proven Results</div>
+        <h2 class="section-title">We've Been Extending Software Life for Over a Decade</h2>
+        <p class="section-subtitle">Our clients come to us when their systems are too critical to replace and too outdated to ignore.</p>
+      </div>
+      <div class="proof-grid">
+        <div class="proof-card">
+          <span class="proof-tag">Legacy Modernization</span>
+          <h4>Extension of Software Life — Crime Mapping System</h4>
+          <p>Extended the life of a critical law enforcement mapping tool without a full rebuild. Modernized the interface, added new integrations, and preserved the core logic that officers depend on daily.</p>
+        </div>
+        <div class="proof-card">
+          <span class="proof-tag">Automated Reporting</span>
+          <h4>Automated Reporting System — County Sheriff</h4>
+          <p>Replaced a manual, paper-based reporting process with a fully automated system. Data flows from the field to command in real time — no more spreadsheets, no more re-keying.</p>
+        </div>
+        <div class="proof-card">
+          <span class="proof-tag">Data Warehousing</span>
+          <h4>Data Warehousing Solutions</h4>
+          <p>Centralized data aggregation for multi-source reporting. Multiple disconnected systems now feed a unified data warehouse, powering dashboards and BI tools across the organization.</p>
+        </div>
+      </div>
+      <div class="trust-badges">
+        <div class="trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          100% On-Shore — Pittsburgh, PA
+        </div>
+        <div class="trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          Fixed-Fee — No Hourly Billing
+        </div>
+        <div class="trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          One-Year Warranty Included
+        </div>
+        <div class="trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          Serving Clients Nationwide
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section>
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">FAQ</div>
+        <h2 class="section-title">Common Questions About Legacy Modernization</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q">Can you modernize software you didn't build?</div>
+          <p class="faq-a">Yes — we do it regularly. We take over systems built by other firms, retired vendors, and in-house teams that have moved on. We reverse-engineer what's there, document it, and build on top of it.</p>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What if we don't have the source code?</div>
+          <p class="faq-a">We can work with compiled applications, existing databases, and screen-level interactions to understand your system. We've modernized software where the original source code was lost years ago.</p>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">How much does legacy modernization cost?</div>
+          <p class="faq-a">Most projects fall in the $50K–$250K range, depending on complexity and scope. We provide a fixed-fee quote after our free assessment — so you know the exact cost before committing.</p>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Do you support the system after launch?</div>
+          <p class="faq-a">Every project includes a one-year warranty at no additional cost. After that, we offer ongoing support agreements tailored to your needs — from monitoring to feature development.</p>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Can you do this in phases?</div>
+          <p class="faq-a">Yes — and most of our clients prefer it that way. Phased delivery means you see real results early, minimize disruption, and can adjust priorities as you go. We build it so each phase delivers standalone value.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA + FORM -->
+  <section class="cta-section" id="contact">
+    <div class="container">
+      <div class="cta-grid">
+        <div class="cta-content">
+          <h2>Your Legacy System Doesn't Need to Be a Liability</h2>
+          <p>Get a free modernization assessment. We'll audit your systems, identify the smartest path forward, and give you a fixed-fee proposal — no obligation.</p>
+          <ul class="cta-checklist">
+            <li>Free assessment — no cost, no commitment</li>
+            <li>A senior developer reviews your system (not a salesperson)</li>
+            <li>Written fixed-fee proposal with clear timeline</li>
+            <li>Phased delivery — see progress before full completion</li>
+            <li>One-year warranty on everything we build</li>
+            <li>100% on-shore team — Pittsburgh, PA</li>
+          </ul>
+          <div class="cta-guarantee">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+            We respond within one business day. Every time.
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3>Get Your Free Modernization Assessment</h3>
+          <p class="form-sub">Tell us about your legacy system — we'll tell you what's possible.</p>
+          <form action="#" method="POST">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" required placeholder="John Smith">
+              </div>
+              <div class="form-group">
+                <label for="company">Company *</label>
+                <input type="text" id="company" name="company" required placeholder="Acme Corp">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" required placeholder="john@acme.com">
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" placeholder="(412) 555-1234">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="situation">What best describes your situation? *</label>
+              <select id="situation" name="situation" required>
+                <option value="" disabled selected>Select your primary need</option>
+                <option value="modernize">Modernize an old system</option>
+                <option value="migrate">Migrate to the cloud or web</option>
+                <option value="consolidate">Consolidate data across systems</option>
+                <option value="warehouse">Need a data warehouse</option>
+                <option value="assessment">Not sure — need an assessment</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="details">Tell us about your legacy system (optional)</label>
+              <textarea id="details" name="details" placeholder="E.g., We have a 15-year-old desktop app that manages our inventory. The vendor went out of business..."></textarea>
+            </div>
+            <button type="submit" class="form-submit">Get My Free Assessment</button>
+            <p class="form-note">No obligation. We'll respond within one business day.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 B-Three Solutions. Pittsburgh, PA. All rights reserved. | <a href="tel:+14125551234">(412) 555-1234</a></p>
+    </div>
+  </footer>
+
+  <!-- STICKY CTA (mobile) -->
+  <div class="sticky-cta">
+    <div class="sticky-cta-inner">
+      <span class="sticky-cta-text">Stuck with legacy software?</span>
+      <a href="#contact">Get Free Assessment</a>
+    </div>
+  </div>
+
+</body>
+</html>

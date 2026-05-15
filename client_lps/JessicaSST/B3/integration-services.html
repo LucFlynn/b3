@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Software Integration Services | B-Three Solutions</title>
+  <meta name="description" content="Connect your business systems with custom integration solutions. Fixed-fee, on-shore development with a one-year warranty. Free consultation — Pittsburgh & nationwide.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #1B3A5C;
+      --primary-dark: #0F2440;
+      --accent: #2E86DE;
+      --accent-hover: #1A6FC4;
+      --orange: #F39C12;
+      --orange-hover: #E08A00;
+      --light-bg: #F7F9FC;
+      --card-bg: #FFFFFF;
+      --text: #1A1A2E;
+      --text-muted: #5A6377;
+      --border: #E2E8F0;
+      --success: #27AE60;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 24px rgba(27, 58, 92, 0.08);
+      --shadow-lg: 0 12px 48px rgba(27, 58, 92, 0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+      background: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; line-height: 1.2; }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ─── TOP BAR ─── */
+    .topbar {
+      background: var(--primary-dark);
+      color: #fff;
+      padding: 10px 0;
+      font-size: 14px;
+    }
+    .topbar .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .topbar a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .topbar a:hover { color: var(--orange); }
+    .topbar-badges {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      font-size: 13px;
+      opacity: 0.85;
+    }
+    .topbar-badges span::before {
+      content: "\2713";
+      margin-right: 4px;
+      color: var(--orange);
+      font-weight: 700;
+    }
+
+    /* ─── HEADER ─── */
+    .header {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .logo span { color: var(--accent); }
+    .header-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--orange);
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .header-cta:hover { background: var(--orange-hover); }
+
+    /* ─── HERO ─── */
+    .hero {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, #234B73 100%);
+      color: #fff;
+      padding: 80px 0 100px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -40%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(46,134,222,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero .container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 48px;
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+    .hero h1 {
+      font-size: 44px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--orange);
+    }
+    .hero p {
+      font-size: 18px;
+      line-height: 1.7;
+      opacity: 0.9;
+      margin-bottom: 32px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--orange);
+      color: #fff;
+      padding: 16px 36px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 17px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(243, 156, 18, 0.35);
+    }
+    .hero-cta:hover {
+      background: var(--orange-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(243, 156, 18, 0.45);
+    }
+    .hero-cta svg { width: 18px; height: 18px; }
+    .hero-badges {
+      display: flex;
+      gap: 24px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hero-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+    .hero-badge svg {
+      width: 20px;
+      height: 20px;
+      color: var(--orange);
+      flex-shrink: 0;
+    }
+
+    /* Hero Visual */
+    .hero-visual {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 32px;
+      backdrop-filter: blur(8px);
+    }
+    .integration-diagram {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    .sys-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .sys-node {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      color: rgba(255,255,255,0.9);
+    }
+    .sys-node.highlight {
+      background: rgba(46,134,222,0.2);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .hub-center {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, var(--accent), #1A6FC4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      line-height: 1.3;
+      box-shadow: 0 0 40px rgba(46,134,222,0.4);
+      position: relative;
+    }
+    .hub-center::before, .hub-center::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 16px;
+      height: 2px;
+      background: var(--accent);
+    }
+    .hub-center::before { left: -16px; }
+    .hub-center::after { right: -16px; }
+
+    /* ─── SECTIONS ─── */
+    section { padding: 80px 0; }
+    section.alt { background: var(--light-bg); }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+    .section-subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin-bottom: 48px;
+    }
+    .section-center { text-align: center; }
+    .section-center .section-subtitle { margin-left: auto; margin-right: auto; }
+
+    /* ─── CARDS ─── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      transition: all 0.2s;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, rgba(46,134,222,0.1), rgba(46,134,222,0.05));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+    .card-icon svg { width: 24px; height: 24px; }
+    .card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .card p {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* Pain cards (red accented) */
+    .pain-card .card-icon {
+      background: linear-gradient(135deg, rgba(231,76,60,0.1), rgba(231,76,60,0.05));
+      color: #E74C3C;
+    }
+
+    /* ─── STEPS ─── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+    .steps::before {
+      content: "";
+      position: absolute;
+      top: 36px;
+      left: 15%;
+      right: 15%;
+      height: 2px;
+      background: var(--border);
+      z-index: 0;
+    }
+    .step {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .step-num {
+      width: 72px;
+      height: 72px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 auto 20px;
+      border: 4px solid #fff;
+      box-shadow: var(--shadow);
+    }
+    .step h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .step p {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .step-tag {
+      display: inline-block;
+      background: rgba(46,134,222,0.1);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 50px;
+      margin-top: 12px;
+    }
+
+    /* ─── PROOF / TRUST ─── */
+    .proof-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 720px;
+      margin: 0 auto 40px;
+    }
+    .proof-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      border-left: 4px solid var(--accent);
+    }
+    .proof-card h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+    .proof-card .proof-tag {
+      display: inline-block;
+      background: var(--light-bg);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 50px;
+      margin-bottom: 12px;
+    }
+    .proof-card p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .trust-badges {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .trust-badge svg {
+      width: 20px;
+      height: 20px;
+      color: var(--success);
+      flex-shrink: 0;
+    }
+
+    /* ─── FAQ ─── */
+    .faq-list {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 24px 0;
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faq-q::after {
+      content: "+";
+      font-size: 22px;
+      color: var(--accent);
+      font-weight: 400;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+    .faq-a {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.7;
+      padding-right: 40px;
+    }
+
+    /* ─── CTA SECTION ─── */
+    .cta-section {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      color: #fff;
+      padding: 80px 0;
+    }
+    .cta-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 48px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .cta-content h2 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .cta-content p {
+      font-size: 17px;
+      opacity: 0.85;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .cta-checklist {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+    .cta-checklist li {
+      padding: 8px 0;
+      font-size: 15px;
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cta-checklist li::before {
+      content: "\2713";
+      color: var(--orange);
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .cta-guarantee {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      font-size: 14px;
+      opacity: 0.8;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .cta-guarantee svg { width: 20px; height: 20px; color: var(--orange); flex-shrink: 0; }
+
+    /* Form */
+    .form-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 36px;
+      box-shadow: var(--shadow-lg);
+    }
+    .form-card h3 {
+      color: var(--primary);
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .form-card .form-sub {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--light-bg);
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(46,134,222,0.1);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .form-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .form-submit:hover {
+      background: var(--orange-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(243,156,18,0.35);
+    }
+    .form-note {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      background: var(--primary-dark);
+      color: rgba(255,255,255,0.6);
+      padding: 32px 0;
+      font-size: 13px;
+      text-align: center;
+    }
+    .footer a { color: rgba(255,255,255,0.8); text-decoration: none; }
+
+    /* ─── STICKY CTA (mobile) ─── */
+    .sticky-cta {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--primary-dark);
+      padding: 12px 20px;
+      z-index: 200;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+    }
+    .sticky-cta a {
+      display: block;
+      background: var(--orange);
+      color: #fff;
+      text-align: center;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 16px;
+      text-decoration: none;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .hero .container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .hero { padding: 60px 0 80px; }
+      .hero h1 { font-size: 32px; }
+      .hero-visual { max-width: 100%; }
+      .steps { grid-template-columns: 1fr; gap: 40px; }
+      .steps::before { display: none; }
+      .section-title { font-size: 28px; }
+      .form-row { grid-template-columns: 1fr; }
+      .trust-badges { justify-content: flex-start; }
+      .sticky-cta { display: block; }
+      .topbar-badges { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 28px; }
+      .header-cta span { display: none; }
+      section { padding: 60px 0; }
+      .cta-section { padding: 60px 0 100px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="container">
+      <a href="tel:+14125551234">Call Us: (412) 555-1234</a>
+      <div class="topbar-badges">
+        <span>100% On-Shore Development</span>
+        <span>Fixed-Fee Pricing</span>
+        <span>One-Year Warranty</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container">
+      <a href="#" class="logo">B-Three <span>Solutions</span></a>
+      <a href="tel:+14125551234" style="color:var(--primary);font-weight:600;font-size:15px;text-decoration:none;">(412) 555-1234</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-text">
+        <h1>Your Systems Don't Talk to Each Other. <em>We Fix That.</em></h1>
+        <p>Custom software integration for ERP, CRM, field operations, and legacy platforms — delivered on time, on budget, with a one-year warranty.</p>
+        <a href="#contact" class="hero-cta">
+          Schedule a Free Assessment
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+        </a>
+        <div class="hero-badges">
+          <div class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0Z" /></svg>
+            Pittsburgh, PA
+          </div>
+          <div class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+            Fixed-Fee Guarantee
+          </div>
+          <div class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0 1 16.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.023 6.023 0 0 1-2.77.672c-.99 0-1.932-.223-2.77-.672" /></svg>
+            1-Year Warranty
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual: Integration Hub Diagram -->
+      <div class="hero-visual">
+        <div class="integration-diagram">
+          <div class="sys-col">
+            <div class="sys-node">ERP System</div>
+            <div class="sys-node">CRM Platform</div>
+            <div class="sys-node highlight">Legacy System</div>
+            <div class="sys-node">Accounting</div>
+          </div>
+          <div class="hub-center">B-Three<br>Integration<br>Hub</div>
+          <div class="sys-col">
+            <div class="sys-node">Field Service</div>
+            <div class="sys-node highlight">Mobile Apps</div>
+            <div class="sys-node">Inventory</div>
+            <div class="sys-node">Reporting</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="alt">
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">The Problem</div>
+        <h2 class="section-title">Disconnected Systems Cost You Time, Money, and Sanity</h2>
+        <p class="section-subtitle">When your platforms can't share data, your team pays the price every single day.</p>
+      </div>
+      <div class="card-grid">
+        <div class="card pain-card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+          </div>
+          <h3>Manual Data Entry Between Systems</h3>
+          <p>Your team wastes hours re-keying information between platforms that should share data automatically. It's tedious, error-prone, and expensive.</p>
+        </div>
+        <div class="card pain-card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+          </div>
+          <h3>No Single Source of Truth</h3>
+          <p>When your ERP says one thing and your CRM says another, nobody trusts the numbers. Decision-making runs on guesswork and spreadsheets.</p>
+        </div>
+        <div class="card pain-card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+          </div>
+          <h3>Scaling Makes It Worse</h3>
+          <p>Every new tool you add creates another data silo. Instead of simplifying operations, growth makes the integration problem more painful.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section>
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">What We Do</div>
+        <h2 class="section-title">We Connect Your Systems So Your Business Runs as One</h2>
+        <p class="section-subtitle">No rip-and-replace. No bloated middleware. Just clean, reliable connections that make your data flow where it needs to go.</p>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" /></svg>
+          </div>
+          <h3>ERP Integration</h3>
+          <p>Connect your ERP to CRM, accounting, inventory, or custom applications. SAP, Oracle, NetSuite, Dynamics — we've done it.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" /></svg>
+          </div>
+          <h3>Custom API Development</h3>
+          <p>When off-the-shelf connectors don't cut it, we build custom APIs and middleware that fit your exact workflow and data model.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+          </div>
+          <h3>Legacy System Bridging</h3>
+          <p>Still running a system from 2005 that holds critical data? We bridge it to your modern stack without a full rebuild.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="alt">
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">How It Works</div>
+        <h2 class="section-title">From Consultation to Connected</h2>
+        <p class="section-subtitle">A simple, transparent process — no surprises at any stage.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Free Integration Assessment</h3>
+          <p>We map your current systems, identify the gaps, and scope the project. No cost, no obligation.</p>
+          <span class="step-tag">No cost</span>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Fixed-Fee Proposal</h3>
+          <p>You get a clear scope, timeline, and price — not an estimate that balloons halfway through.</p>
+          <span class="step-tag">No surprises</span>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Build, Test, Launch</h3>
+          <p>We build it, test it with your team, deploy it, and back it with a full one-year warranty.</p>
+          <span class="step-tag">1-year warranty</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOCIAL PROOF -->
+  <section>
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">Proven Results</div>
+        <h2 class="section-title">Trusted by Businesses and Government Agencies</h2>
+        <p class="section-subtitle">We've built integration and automation systems for organizations that can't afford downtime.</p>
+      </div>
+      <div class="proof-grid">
+        <div class="proof-card">
+          <span class="proof-tag">Government / Law Enforcement</span>
+          <h4>Automated Reporting System — County Sheriff's Office</h4>
+          <p>Replaced manual, paper-based reporting with a fully automated system. Officers spend less time on paperwork and more time on the job. Data flows from the field to command in real time.</p>
+        </div>
+        <div class="proof-card">
+          <span class="proof-tag">Government / Law Enforcement</span>
+          <h4>Case Management — Internal Investigations</h4>
+          <p>Built a custom case management platform that unified disparate data sources into a single, searchable system. Improved oversight, reduced response times, and eliminated manual tracking.</p>
+        </div>
+        <div class="proof-card">
+          <span class="proof-tag">School Safety</span>
+          <h4>Sight On Scene — Real-Time Intelligence Platform</h4>
+          <p>Developed an interactive mapping and real-time intelligence system for school safety. Integrates multiple data sources into a unified operational view for first responders.</p>
+        </div>
+        <div class="proof-card">
+          <span class="proof-tag">Operations</span>
+          <h4>Work Order Processing — Mobile Integration</h4>
+          <p>Built a smartphone-based work order system that replaced paper processes. Field workers create, update, and close work orders from their phones — synced to the back office in real time.</p>
+        </div>
+      </div>
+      <div class="trust-badges">
+        <div class="trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          100% On-Shore — Pittsburgh, PA
+        </div>
+        <div class="trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          Fixed-Fee — No Hourly Billing
+        </div>
+        <div class="trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          One-Year Warranty Included
+        </div>
+        <div class="trust-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+          Serving Clients Nationwide
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="alt">
+    <div class="container">
+      <div class="section-center">
+        <div class="section-label">FAQ</div>
+        <h2 class="section-title">Common Questions</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q">How long does a typical integration project take?</div>
+          <p class="faq-a">Most projects run 8–16 weeks depending on complexity. We'll give you a firm timeline in our free assessment — before any commitment.</p>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What if our legacy system doesn't have a modern API?</div>
+          <p class="faq-a">That's our specialty. We build custom connectors, data bridges, and adapters for systems that weren't designed to integrate — even decades-old platforms.</p>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Do you work with companies outside Pittsburgh?</div>
+          <p class="faq-a">Yes. We serve clients nationwide. Our entire team is U.S.-based (on-shore) and works remotely with teams everywhere.</p>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What does "fixed-fee" actually mean?</div>
+          <p class="faq-a">The price we quote is the price you pay. No hourly billing surprises. No "we discovered extra scope" upcharges. If the scope genuinely changes, we discuss it with you before any cost changes.</p>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">What systems can you integrate?</div>
+          <p class="faq-a">Virtually any combination — ERP (SAP, Oracle, NetSuite, Dynamics), CRM (Salesforce, HubSpot), accounting (QuickBooks, Sage), custom databases, field service platforms, mobile apps, and legacy systems.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA + FORM -->
+  <section class="cta-section" id="contact">
+    <div class="container">
+      <div class="cta-grid">
+        <div class="cta-content">
+          <h2>Stop Paying for Disconnected Systems</h2>
+          <p>Get a free integration assessment. We'll map your systems, identify the quick wins, and give you a fixed-fee proposal — no obligation, no sales pressure.</p>
+          <ul class="cta-checklist">
+            <li>Free assessment — no cost, no commitment</li>
+            <li>A senior developer reviews your setup (not a salesperson)</li>
+            <li>Written fixed-fee proposal with clear timeline</li>
+            <li>One-year warranty on everything we build</li>
+            <li>100% on-shore team — Pittsburgh, PA</li>
+          </ul>
+          <div class="cta-guarantee">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+            We respond within one business day. Every time.
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3>Get Your Free Assessment</h3>
+          <p class="form-sub">Tell us about your systems — we'll tell you what's possible.</p>
+          <form action="#" method="POST">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" required placeholder="John Smith">
+              </div>
+              <div class="form-group">
+                <label for="company">Company *</label>
+                <input type="text" id="company" name="company" required placeholder="Acme Corp">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" required placeholder="john@acme.com">
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" placeholder="(412) 555-1234">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="systems">Which systems do you need to connect? *</label>
+              <select id="systems" name="systems" required>
+                <option value="" disabled selected>Select your primary need</option>
+                <option value="erp">ERP Integration (SAP, Oracle, NetSuite, etc.)</option>
+                <option value="crm">CRM Integration (Salesforce, HubSpot, etc.)</option>
+                <option value="legacy">Legacy System Bridging</option>
+                <option value="api">Custom API / Middleware Development</option>
+                <option value="multiple">Multiple Systems — Need Assessment</option>
+                <option value="other">Other / Not Sure</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="details">Tell us about your integration challenge (optional)</label>
+              <textarea id="details" name="details" placeholder="E.g., We need our ERP to sync with our CRM and field service app..."></textarea>
+            </div>
+            <button type="submit" class="form-submit">Get My Free Assessment</button>
+            <p class="form-note">No obligation. No sales pressure. Just a clear plan.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 B-Three Solutions. Pittsburgh, PA. All rights reserved. | <a href="tel:+14125551234">(412) 555-1234</a></p>
+    </div>
+  </footer>
+
+  <!-- STICKY CTA (mobile) -->
+  <div class="sticky-cta">
+    <a href="#contact">Get Your Free Assessment</a>
+  </div>
+
+</body>
+</html>
