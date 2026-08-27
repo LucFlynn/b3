@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom Mobile App Development by Pittsburgh Engineers | B-Three Solutions</title>
+<meta name="description" content="Custom mobile app development at a fixed price and fixed delivery date, with a one-year warranty. Built by Pittsburgh engineers.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Inter',system-ui,sans-serif;color:#1c2434}
+  h1,h2,h3,.serif{font-family:'Source Serif 4',Georgia,serif}
+  .rule{width:44px;height:3px;background:#1e4d7b}
+</style>
+<script>window.dataLayer = window.dataLayer || [];</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  .er-note{position:relative;margin:26px 0;padding:20px 24px 18px;background:#fffdf3;border:1px solid #e6dcae;
+    border-left:6px solid #f2b705;border-radius:3px;box-shadow:0 3px 14px rgba(0,0,0,.16);
+    font-family:'Inter',system-ui,sans-serif;color:#2b2a24;transform:rotate(-.18deg);text-align:left}
+  .er-note *{font-family:inherit}
+  .er-note__top{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+  .er-note__num{flex:none;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+    border-radius:999px;background:#f2b705;color:#25231c;font-weight:700;font-size:13px;
+    font-family:'Inter',sans-serif;transform:translateY(2px)}
+  .er-note__h{font-family:'Caveat','Bradley Hand',cursive!important;font-size:27px;line-height:1.15;
+    font-weight:700;color:#7a5600;margin:0;letter-spacing:.2px}
+  .er-note p{font-size:15px;line-height:1.62;margin:.55em 0;color:#3a3830}
+  .er-note strong{color:#141310;font-weight:600}
+  .er-note ul{margin:.55em 0;padding-left:0;list-style:none}
+  .er-note li{font-size:15px;line-height:1.6;margin:.45em 0;padding-left:18px;position:relative;color:#3a3830}
+  .er-note li:before{content:"—";position:absolute;left:0;color:#b08a1e}
+  .er-note--ask{border-left-color:#c2410c;background:#fff6ee;border-color:#f0cfae;transform:rotate(.12deg)}
+  .er-note--ask .er-note__num{background:#c2410c;color:#fff}
+  .er-note--ask .er-note__h{color:#9a3412}
+  .er-note--ask li:before{color:#c2410c}
+  .er-hdr{background:#1a1a17;color:#fff;font-family:'Inter',system-ui,sans-serif;padding:26px 24px;text-align:left}
+  .er-hdr__in{max-width:760px;margin:0 auto}
+  .er-hdr__k{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#f2b705;font-weight:700}
+  .er-hdr h2{font-family:'Caveat','Bradley Hand',cursive!important;font-size:34px;margin:6px 0 10px;
+    color:#fff;font-weight:700;line-height:1.1}
+  .er-hdr p{font-size:15px;line-height:1.65;color:#d4d2c8;margin:.5em 0;max-width:68ch}
+  .er-hdr .er-sig{margin-top:14px;font-size:13px;color:#8d8a7e}
+  .er-wrap{max-width:760px;margin:0 auto;padding:0 20px}
+  @media print{
+    .er-note{box-shadow:none;break-inside:avoid;transform:none}
+    .er-hdr{background:#fff;color:#111;border-bottom:2px solid #111}
+    .er-hdr h2,.er-hdr p{color:#111}
+    .er-hdr__k{color:#7a5600}
+  }
+</style>
+</head>
+<body class="bg-white antialiased">
+<div class="er-hdr">
+  <div class="er-hdr__in">
+    <div class="er-hdr__k">Annotated draft &middot; Version B of two &middot; Not the live page</div>
+    <h2>Jessica &mdash; the notes in the margins are mine, not part of the page.</h2>
+    <p>This is the long version &mdash; the same offer and the same proof as Version A, built as an argument that unfolds in order rather than a single screen. It's for the buyer who has to forward the page to a CFO, a board, or a council and defend the decision. It reads like a document on purpose. We run both versions and let your traffic decide which one works, rather than guessing.</p>
+    <p>Everything on a <strong style="color:#f2b705">yellow card</strong> is an explanation of why the block above it
+    exists and what it's meant to fix. The version that actually goes live has none of them. The
+    <strong style="color:#f9a26c">orange card at the bottom</strong> is the part that needs an answer from you.</p>
+    <p class="er-sig">Luc Flynn &middot; Electro Raven</p>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     PAGE B — SEQUENTIAL ARGUMENT / LONG
+     Each section earns the next scroll. CTA repeats at every
+     natural stopping point.
+     ============================================================ -->
+
+<header class="border-b border-slate-200 sticky top-0 bg-white/95 backdrop-blur z-40">
+  <div class="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
+    <div>
+      <div class="font-bold tracking-tight text-slate-900">B-Three Solutions</div>
+      <div class="text-xs text-slate-500">Pittsburgh, Pennsylvania</div>
+    </div>
+    <a href="#estimate" class="rounded bg-[#1e4d7b] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#163a5e] transition">
+      Request an estimate
+    </a>
+  </div>
+</header>
+
+<!-- 1. HERO -->
+<section class="mx-auto max-w-3xl px-6 pt-16 pb-12">
+  <p class="text-xs font-bold tracking-[0.18em] uppercase text-[#1e4d7b]">Fixed-Price Custom Mobile App Development</p>
+  <h1 class="mt-5 text-4xl sm:text-5xl font-bold leading-[1.08] tracking-tight text-slate-900">
+    Still comparing mobile app developers by the hour?
+  </h1>
+  <p class="mt-6 text-xl leading-relaxed text-slate-600">
+    Why every delay becomes their revenue &mdash; and your cost.
+  </p>
+  <div class="mt-8 flex flex-wrap gap-3">
+    <a href="#estimate" class="rounded bg-[#1e4d7b] px-7 py-3.5 font-semibold text-white hover:bg-[#163a5e] transition">
+      Request a Fixed-Fee Estimate
+    </a>
+    <a href="tel:+14129124705" onclick="dataLayer.push({event:'phone_click',phone_location:'hero'})"
+       class="rounded border border-slate-300 px-7 py-3.5 font-semibold text-slate-700 hover:border-slate-900 transition">
+      (412) 912-4705
+    </a>
+  </div>
+</section>
+
+<div class="er-wrap">
+<div class="er-note">
+  <div class="er-note__top"><span class="er-note__num">1</span><p class="er-note__h">Why the headline questions the way firms are compared</p></div>
+  
+  <p><strong>The navigation is gone on purpose.</strong> Every link in a menu is an exit from a click you
+  already paid $14.59 for. One page, one action. Removing navigation is one of the few changes with
+  repeated published results behind it &mdash; HubSpot measured 16% and 28% lifts on their own pages,
+  and a retailer (Yuppiechef) doubled conversion from 3% to 6% doing nothing else.</p>
+  <p><strong>This uses the “Questioning the Mistake” direct-response structure.</strong> The visitor is
+  already comparing mobile app developers. The headline challenges the hourly-rate comparison itself,
+  then the line below reveals why: every delay pays the vendor while costing the client. The eyebrow
+  keeps both the fixed-price offer and the campaign's exact service language visible immediately.</p>
+  <p>Version A uses the “How to get X without Y” structure and leads with the desired outcome. This
+  version questions the buying assumption and then makes the longer argument underneath it. Both retain
+  the campaign's mobile-app language while testing two genuinely different direct-response approaches.</p>
+
+</div>
+</div><!-- 2. CREDIBILITY STRIP -->
+<section class="border-y border-slate-200 bg-slate-50">
+  <div class="mx-auto max-w-5xl px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+    <div><div class="serif text-3xl font-bold text-[#1e4d7b]">30+</div><div class="text-sm text-slate-600 mt-1">Engineers, all in Pittsburgh</div></div>
+    <div><div class="serif text-3xl font-bold text-[#1e4d7b]">100+</div><div class="text-sm text-slate-600 mt-1">Clients since 2010</div></div>
+    <div><div class="serif text-3xl font-bold text-[#1e4d7b]">90%</div><div class="text-sm text-slate-600 mt-1">Staff retention, past decade</div></div>
+    <div><div class="serif text-3xl font-bold text-[#1e4d7b]">1 yr</div><div class="text-sm text-slate-600 mt-1">Warranty on every defect</div></div>
+  </div>
+</section>
+
+<div class="er-wrap">
+<div class="er-note">
+  <div class="er-note__top"><span class="er-note__num">2</span><p class="er-note__h">Four numbers, at a glance, before anyone reads a word</p></div>
+  
+  <p>People don't read landing pages, they scan them &mdash; eye-tracking work at Nielsen Norman Group
+  puts it at roughly 20&ndash;28% of the words on the page. So the four facts that establish you're real
+  go somewhere they can be absorbed in about two seconds, at the top, in large type.</p>
+  <p>All four are answers to unspoken objections: are you big enough (30+), have you done this before
+  (100+), will your people stick around (90%), what happens after go-live (1 year).</p>
+
+</div>
+</div><!-- 3. THE PROBLEM -->
+<section class="mx-auto max-w-3xl px-6 py-16">
+  <div class="rule mb-6"></div>
+  <h2 class="text-3xl font-bold leading-tight text-slate-900">You've heard the story. You may have lived it.</h2>
+  <div class="mt-6 space-y-5 text-lg leading-relaxed text-slate-700">
+    <p>
+      A project starts at six months and a number everyone can live with. Then a requirement surfaces that
+      wasn't in scope. Then the lead developer rolls off to another account. Then the timeline moves, and moves again.
+    </p>
+    <p>
+      Eighteen months later you've spent triple, the software does most of what you asked for,
+      and nobody in operations wants to use it.
+    </p>
+    <p class="font-semibold text-slate-900">
+      That outcome isn't bad luck. It's what happens when the vendor bills for hours instead of committing to a result.
+      Hourly billing means every delay is revenue for them and cost for you. The incentives point in opposite directions
+      from the day you sign.
+    </p>
+  </div>
+</section>
+
+<div class="er-wrap">
+<div class="er-note">
+  <div class="er-note__top"><span class="er-note__num">3</span><p class="er-note__h">Why the page spends a full section on the problem before offering anything</p></div>
+  
+  <p>This is the section clients most often want to cut, and it's the one doing the heaviest lifting.</p>
+  <p><strong>It reframes the decision from price to structure.</strong> As long as the buyer is comparing
+  hourly rates, you lose to a firm quoting nearshore rates at 60% less. The moment they understand that
+  hourly billing means <em>every delay is revenue for the vendor and cost for them</em>, the comparison
+  changes shape entirely &mdash; and you're the only one of the three with an answer.</p>
+  <p>It also matters that this reads as a description of an industry problem, not an attack on a
+  competitor. A buyer who has lived through a project like this recognizes it immediately and starts
+  trusting the page. One who hasn't gets a reason to care.</p>
+
+</div>
+</div><!-- 4. THE MECHANISM -->
+<section class="bg-slate-900 text-white">
+  <div class="mx-auto max-w-3xl px-6 py-16">
+    <div class="w-11 h-[3px] bg-white/40 mb-6"></div>
+    <h2 class="text-3xl font-bold leading-tight">We take the risk off your desk and put it on ours.</h2>
+    <p class="mt-6 text-lg leading-relaxed text-slate-300">
+      Before any development starts, we define the scope with you and hand back three commitments in writing.
+    </p>
+
+    <div class="mt-10 space-y-8">
+      <div class="border-l-2 border-white/25 pl-6">
+        <h3 class="text-xl font-bold">A fixed price</h3>
+        <p class="mt-2 text-slate-300 leading-relaxed">
+          Not an estimate, not a range, not a rate card. One number in the agreement. If the build takes
+          longer than we planned, the number stays the same and we absorb it.
+        </p>
+      </div>
+      <div class="border-l-2 border-white/25 pl-6">
+        <h3 class="text-xl font-bold">A fixed delivery date</h3>
+        <p class="mt-2 text-slate-300 leading-relaxed">
+          Committed in the contract, so your operations team can plan training, rollout, and cutover
+          against a real date instead of a moving target.
+        </p>
+      </div>
+      <div class="border-l-2 border-white/25 pl-6">
+        <h3 class="text-xl font-bold">A one-year warranty</h3>
+        <p class="mt-2 text-slate-300 leading-relaxed">
+          Every defect, covered for twelve months after launch. Most vendors' obligations end at go-live.
+          Ours start over.
+        </p>
+      </div>
+    </div>
+
+    <p class="mt-10 text-lg leading-relaxed text-slate-300">
+      A 450-person body shop can't offer this, because they sell capacity by the hour and the risk has to sit
+      with you for the model to work. We can offer it because we scope carefully, we've done it 100+ times,
+      and the same engineers stay on your project from kickoff to warranty.
+    </p>
+  </div>
+</section>
+
+<div class="er-wrap">
+<div class="er-note">
+  <div class="er-note__top"><span class="er-note__num">4</span><p class="er-note__h">The three commitments, stated as commitments</p></div>
+  
+  <p>These are things you already do on every project. They were on your site as feature bullets. Here
+  they're the argument, with the consequence spelled out: if the build runs long, <strong>you</strong>
+  absorb it.</p>
+  <p>The dark background is deliberate. It's the one section of the page that should feel like a
+  contract clause rather than marketing copy, because that's exactly what it is.</p>
+  <p>The paragraph at the end of the section explains why a 450-person firm can't match this. That's the
+  bit that survives being forwarded to a CFO &mdash; it gives your buyer language to use in a room
+  you're not in.</p>
+
+</div>
+</div><!-- 5. PROOF -->
+<section class="mx-auto max-w-3xl px-6 py-16">
+  <div class="rule mb-6"></div>
+  <h2 class="text-3xl font-bold leading-tight text-slate-900">
+    Public agencies don't get to gamble on a vendor.
+  </h2>
+  <p class="mt-6 text-lg leading-relaxed text-slate-700">
+    When a police department picks a software firm, there's no version of the story where the project quietly
+    dies and everyone moves on. It has to work, and it has to keep working. That's the standard we've been
+    held to for over a decade.
+  </p>
+
+  <div class="mt-9 space-y-4">
+    <div class="border border-slate-200 rounded-lg p-6">
+      <h3 class="font-bold text-lg text-slate-900">City of Pittsburgh</h3>
+      <p class="mt-1.5 text-slate-600">Automated Police Reporting System &mdash; the system officers file reports on.</p>
+    </div>
+    <div class="border border-slate-200 rounded-lg p-6">
+      <h3 class="font-bold text-lg text-slate-900">Pittsburgh Bureau of Police</h3>
+      <p class="mt-1.5 text-slate-600">MapStats crime plotting, used to analyze trends and deploy resources.</p>
+    </div>
+    <div class="border border-slate-200 rounded-lg p-6">
+      <h3 class="font-bold text-lg text-slate-900">County Sheriff's Department</h3>
+      <p class="mt-1.5 text-slate-600">Comprehensive automated reporting across the department.</p>
+    </div>
+    <div class="border border-slate-200 rounded-lg p-6">
+      <h3 class="font-bold text-lg text-slate-900">Major metropolitan school district</h3>
+      <p class="mt-1.5 text-slate-600">Adopted after seeing the City of Pittsburgh system in operation.</p>
+    </div>
+  </div>
+
+  <p class="mt-8 text-lg leading-relaxed text-slate-700">
+    Alongside that: insurance, engineering, manufacturing, nonprofits, and other software firms who bring us in
+    when their own teams are at capacity.
+  </p>
+
+  <div class="mt-8">
+    <a href="#estimate" class="inline-block rounded bg-[#1e4d7b] px-7 py-3.5 font-semibold text-white hover:bg-[#163a5e] transition">
+      Request a Fixed-Fee Estimate
+    </a>
+  </div>
+</section>
+
+<div class="er-wrap">
+<div class="er-note">
+  <div class="er-note__top"><span class="er-note__num">5</span><p class="er-note__h">Why the proof sits here rather than at the top</p></div>
+  
+  <p>Proof lands hardest right after the claim it supports. The section above makes a promise most
+  vendors won't make; this one shows the promise being kept on systems where failure was not survivable.
+  Reversing that order &mdash; proof first, promise second &mdash; is one of the things worth testing
+  once these are live.</p>
+  <p>All four clients are already published on your own Success Stories page. Nothing here is new
+  information; it's information moved to where a stranger will see it.</p>
+  <p><strong>This section needs your sign-off.</strong> See the orange note at the bottom of the page.</p>
+
+</div>
+</div><!-- 6. WHO IT'S FOR -->
+<section class="border-y border-slate-200 bg-slate-50">
+  <div class="mx-auto max-w-3xl px-6 py-16">
+    <div class="rule mb-6"></div>
+    <h2 class="text-3xl font-bold leading-tight text-slate-900">This is usually the right call when&hellip;</h2>
+    <ul class="mt-7 space-y-4 text-lg text-slate-700">
+      <li class="flex gap-3"><span class="text-[#1e4d7b] font-bold">&rarr;</span><span>Your team still moves data between systems by hand, or works off paper and spreadsheets.</span></li>
+      <li class="flex gap-3"><span class="text-[#1e4d7b] font-bold">&rarr;</span><span>Your ERP, CRM, and operational systems don't talk to each other.</span></li>
+      <li class="flex gap-3"><span class="text-[#1e4d7b] font-bold">&rarr;</span><span>Off-the-shelf software forces workarounds that cost more than the license.</span></li>
+      <li class="flex gap-3"><span class="text-[#1e4d7b] font-bold">&rarr;</span><span>A legacy system still runs the business but can't be extended any further.</span></li>
+      <li class="flex gap-3"><span class="text-[#1e4d7b] font-bold">&rarr;</span><span>You need a defensible number and date to take to a board, a council, or a CFO.</span></li>
+    </ul>
+    <p class="mt-8 text-lg text-slate-600 leading-relaxed">
+      <strong class="text-slate-900">It's usually not the right call</strong> if you're looking for the cheapest hourly
+      rate, or you want a consumer app built on spec. We're not the low bidder and we don't pretend to be.
+    </p>
+  </div>
+</section>
+
+<div class="er-wrap">
+<div class="er-note">
+  <div class="er-note__top"><span class="er-note__num">6</span><p class="er-note__h">The &ldquo;not for you&rdquo; paragraph is not a mistake</p></div>
+  
+  <p>Turning people away on the page is counterintuitive, and it's one of the more reliable moves in
+  lead generation. Right now about <strong>31% of your identified ad spend is going to people who will
+  never buy from you</strong> &mdash; developers registering apps in the Spotify dashboard, people
+  searching how to build an app themselves, and individuals with an app idea and a few thousand dollars.
+  Some of that gets fixed in the ad account with negative keywords. The rest gets fixed here, by saying
+  plainly that you're not the low bidder and you don't build consumer apps on spec.</p>
+  <p>The five bullets above it are written as symptoms, not services &mdash; "your team still moves data
+  between systems by hand" rather than "systems integration." A buyer recognizes their own situation
+  faster than they recognize a category name. The last bullet, needing a defensible number for a board
+  or a CFO, is aimed straight at the person who has to justify this internally.</p>
+
+</div>
+</div><!-- 7. WHAT HAPPENS NEXT -->
+<section class="mx-auto max-w-3xl px-6 py-16">
+  <div class="rule mb-6"></div>
+  <h2 class="text-3xl font-bold leading-tight text-slate-900">What happens after you reach out</h2>
+  <p class="mt-4 text-lg text-slate-600">No pitch deck. The first conversation is a working session.</p>
+
+  <ol class="mt-9 space-y-7">
+    <li class="flex gap-5">
+      <span class="serif text-2xl font-bold text-[#1e4d7b] shrink-0 w-8">1</span>
+      <div><h3 class="font-bold text-lg text-slate-900">We identify the business problem</h3>
+      <p class="mt-1 text-slate-600 leading-relaxed">The bottleneck, who it affects, and what it currently costs you. Technology comes after this, not before.</p></div>
+    </li>
+    <li class="flex gap-5">
+      <span class="serif text-2xl font-bold text-[#1e4d7b] shrink-0 w-8">2</span>
+      <div><h3 class="font-bold text-lg text-slate-900">We define the solution</h3>
+      <p class="mt-1 text-slate-600 leading-relaxed">Users, functionality, security requirements, devices, and what "done" actually means.</p></div>
+    </li>
+    <li class="flex gap-5">
+      <span class="serif text-2xl font-bold text-[#1e4d7b] shrink-0 w-8">3</span>
+      <div><h3 class="font-bold text-lg text-slate-900">We map the integrations</h3>
+      <p class="mt-1 text-slate-600 leading-relaxed">How it connects to the ERP, CRM, databases, and legacy systems you already run &mdash; without replacing what works.</p></div>
+    </li>
+    <li class="flex gap-5">
+      <span class="serif text-2xl font-bold text-[#1e4d7b] shrink-0 w-8">4</span>
+      <div><h3 class="font-bold text-lg text-slate-900">You get a fixed-fee proposal</h3>
+      <p class="mt-1 text-slate-600 leading-relaxed">Scope, price, delivery date, and warranty terms. Yours to take to whoever signs, whether or not you hire us.</p></div>
+    </li>
+  </ol>
+</section>
+
+<div class="er-wrap">
+<div class="er-note">
+  <div class="er-note__top"><span class="er-note__num">7</span><p class="er-note__h">Turning &ldquo;contact us&rdquo; into something concrete</p></div>
+  
+  <p>"Request an estimate" is a vague commitment, and vague commitments get postponed. Four steps with
+  the last one named as a deliverable &mdash; scope, price, delivery date, warranty terms, in writing
+  &mdash; converts it into a specific exchange.</p>
+  <p><strong>"Yours to take to whoever signs, whether or not you hire us"</strong> is the most important
+  sentence in the section. It gives the visitor something they keep regardless of the outcome, which is
+  what makes it worth their time to start the conversation. It also happens to be true of how you
+  already work.</p>
+  <p>"No pitch deck. The first conversation is a working session" removes the other objection &mdash;
+  that this is a sales call in disguise.</p>
+
+</div>
+</div><!-- 8. FORM -->
+<section id="estimate" class="bg-slate-900 text-white">
+  <div class="mx-auto max-w-2xl px-6 py-16">
+    <h2 class="text-3xl font-bold leading-tight">Request a fixed-fee estimate</h2>
+    <p class="mt-3 text-slate-300 text-lg">
+      Four fields. We reply within one business day, and if we're not the right fit for what you need, we'll say so.
+    </p>
+
+    <form class="mt-8 space-y-5" id="b3-form-b"
+          onfocusin="if(!this.dataset.started){this.dataset.started=1;dataLayer.push({event:'form_start',form_id:'b3_lp_b'})}"
+          onsubmit="event.preventDefault();dataLayer.push({event:'form_submit',form_id:'b3_lp_b'});">
+      <div>
+        <label for="b-name" class="block text-sm font-semibold mb-1.5">Name</label>
+        <input id="b-name" name="name" type="text" autocomplete="name" required
+               class="w-full rounded border border-slate-600 bg-slate-800 px-4 py-3 text-white focus:border-white focus:outline-none">
+      </div>
+      <div class="grid sm:grid-cols-2 gap-5">
+        <div>
+          <label for="b-email" class="block text-sm font-semibold mb-1.5">Work email</label>
+          <input id="b-email" name="email" type="email" inputmode="email" autocomplete="email" required
+                 class="w-full rounded border border-slate-600 bg-slate-800 px-4 py-3 text-white focus:border-white focus:outline-none">
+        </div>
+        <div>
+          <label for="b-phone" class="block text-sm font-semibold mb-1.5">Phone</label>
+          <input id="b-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required
+                 class="w-full rounded border border-slate-600 bg-slate-800 px-4 py-3 text-white focus:border-white focus:outline-none">
+        </div>
+      </div>
+      <div>
+        <label for="b-problem" class="block text-sm font-semibold mb-1.5">What process or system needs to work better?</label>
+        <textarea id="b-problem" name="problem" rows="4" required
+                  class="w-full rounded border border-slate-600 bg-slate-800 px-4 py-3 text-white focus:border-white focus:outline-none"></textarea>
+      </div>
+      <button type="submit" class="w-full rounded bg-white px-6 py-4 text-lg font-bold text-slate-900 hover:bg-slate-100 transition">
+        Request My Estimate
+      </button>
+      <p class="text-center text-sm text-slate-400">No obligation. We never sell your information.</p>
+    </form>
+
+    <div class="mt-8 pt-8 border-t border-slate-700 text-center">
+      <p class="text-slate-300 mb-3">Prefer to talk it through first?</p>
+      <a href="tel:+14129124705" onclick="dataLayer.push({event:'phone_click',phone_location:'form_section'})"
+         class="inline-block rounded border border-slate-500 px-8 py-3 font-semibold hover:border-white transition">
+        Call (412) 912-4705
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="er-wrap">
+<div class="er-note">
+  <div class="er-note__top"><span class="er-note__num">8</span><p class="er-note__h">What changed in the form, and why each change matters</p></div>
+  
+  <ul>
+    <li><strong>The budget dropdown is gone entirely.</strong> On the current page it's required, and the
+    first option is "Under $25,000." That asks a stranger to disclose their number before you've given
+    them anything, and it frames the conversation around your revenue rather than their problem.</li>
+    <li><strong>The CAPTCHA is gone.</strong> It rejects real people at a measurable rate. Spam gets
+    handled invisibly on the back end instead.</li>
+    <li><strong>Four fields, and four is the ceiling.</strong> The steep drop-off in published form data
+    sits between four and seven.</li>
+    <li><strong>"Four fields" is stated above the form</strong> so the visitor knows the ask is small
+    before deciding whether to start. How long a form <em>looks</em> matters as much as how long it is.</li>
+    <li><strong>The phone stays available.</strong> Some buyers at this size will never fill in a form,
+    and a call is a better lead anyway.</li>
+  </ul>
+  <p>Once live, we can see form starts, form completions, and calls as three separate numbers &mdash;
+  so if people are starting the form and abandoning it, we'll know, rather than guessing.</p>
+
+</div>
+</div><!-- 9. FAQ -->
+<section class="mx-auto max-w-3xl px-6 py-16">
+  <div class="rule mb-6"></div>
+  <h2 class="text-3xl font-bold leading-tight text-slate-900">Questions we get asked</h2>
+  <div class="mt-8 divide-y divide-slate-200 border-y border-slate-200">
+    <details class="py-5 group">
+      <summary class="font-semibold text-lg cursor-pointer text-slate-900 list-none flex justify-between items-center">
+        How can you quote a fixed price before you've built it?
+        <span class="text-[#1e4d7b] group-open:rotate-45 transition-transform text-2xl font-light">+</span>
+      </summary>
+      <p class="mt-3 text-slate-600 leading-relaxed">
+        Because we scope first. We work through the users, workflows, integrations, and requirements
+        before quoting anything. That work is what makes the number reliable &mdash; and it's why our proposal
+        takes longer to produce than a rate card.
+      </p>
+    </details>
+    <details class="py-5 group">
+      <summary class="font-semibold text-lg cursor-pointer text-slate-900 list-none flex justify-between items-center">
+        What if we change what we want mid-project?
+        <span class="text-[#1e4d7b] group-open:rotate-45 transition-transform text-2xl font-light">+</span>
+      </summary>
+      <p class="mt-3 text-slate-600 leading-relaxed">
+        Real changes get priced as a change &mdash; openly, before we do the work. What you don't get is
+        a surprise invoice because the original estimate was optimistic. Our misjudgment is on us.
+      </p>
+    </details>
+    <details class="py-5 group">
+      <summary class="font-semibold text-lg cursor-pointer text-slate-900 list-none flex justify-between items-center">
+        Who actually writes the code?
+        <span class="text-[#1e4d7b] group-open:rotate-45 transition-transform text-2xl font-light">+</span>
+      </summary>
+      <p class="mt-3 text-slate-600 leading-relaxed">
+        Our own engineers, in Pittsburgh. Nothing is subcontracted offshore. With 90% retention over the
+        past decade, the people who start your project are generally the people who finish it.
+      </p>
+    </details>
+    <details class="py-5 group">
+      <summary class="font-semibold text-lg cursor-pointer text-slate-900 list-none flex justify-between items-center">
+        Do we have to replace the systems we already run?
+        <span class="text-[#1e4d7b] group-open:rotate-45 transition-transform text-2xl font-light">+</span>
+      </summary>
+      <p class="mt-3 text-slate-600 leading-relaxed">
+        Usually not. Most of our work extends what's already there &mdash; connecting ERP, CRM, GIS,
+        accounting systems, databases, and legacy software rather than ripping them out.
+      </p>
+    </details>
+    <details class="py-5 group">
+      <summary class="font-semibold text-lg cursor-pointer text-slate-900 list-none flex justify-between items-center">
+        What does a project cost?
+        <span class="text-[#1e4d7b] group-open:rotate-45 transition-transform text-2xl font-light">+</span>
+      </summary>
+      <p class="mt-3 text-slate-600 leading-relaxed">
+        It depends entirely on scope, integrations, and security requirements &mdash; which is why we scope
+        before quoting rather than publishing a range that wouldn't apply to you. You'll have a real number
+        in writing before you commit to anything.
+      </p>
+    </details>
+  </div>
+
+  <div class="mt-10 text-center">
+    <a href="#estimate" class="inline-block rounded bg-[#1e4d7b] px-8 py-4 font-semibold text-white hover:bg-[#163a5e] transition">
+      Request a Fixed-Fee Estimate
+    </a>
+  </div>
+</section>
+
+<div class="er-wrap">
+<div class="er-note">
+  <div class="er-note__top"><span class="er-note__num">9</span><p class="er-note__h">The FAQ exists to answer price without publishing a price</p></div>
+  
+  <p>You've told me you won't publish a price range, and I agree with that &mdash; a range that doesn't
+  apply to the reader's project does more harm than silence. But "what does this cost" is the first
+  question in everyone's head, and a page that ignores it entirely loses the reader.</p>
+  <p>So the FAQ answers it honestly: it depends on scope, which is why we scope before quoting, and
+  you'll have a real number in writing before committing to anything. That turns a refusal into a
+  demonstration of the method.</p>
+  <p>The other four questions are the objections that actually kill these deals &mdash; how can you
+  fix-price it, what if we change our minds, who writes the code, do we have to rip out what we already
+  run. Answering them on the page means they don't have to become a phone call before someone will
+  raise their hand.</p>
+
+</div>
+</div><footer class="border-t border-slate-200 bg-slate-50">
+  <div class="mx-auto max-w-3xl px-6 py-10 text-center">
+    <p class="serif text-lg text-slate-800">We solve business problems first. We build technology second.</p>
+    <p class="mt-3 text-sm text-slate-500">
+      B-Three Solutions, Inc. &middot; 555 Davidson Road, Suite 4, Pittsburgh, PA 15239 &middot;
+      <a href="tel:+14129124705" class="underline">(412) 912-4705</a>
+    </p>
+  </div>
+</footer>
+
+<div class="er-wrap">
+<div class="er-note er-note--ask">
+  <div class="er-note__top"><span class="er-note__num">10</span><p class="er-note__h">Three things I need a yes or no on before this can take traffic</p></div>
+  
+  <ul>
+    <li><strong>Are the public-safety clients still fine to name?</strong> The page uses City of
+    Pittsburgh, Pittsburgh Bureau of Police, a county Sheriff's Department, and a major metropolitan
+    school district. All four are already published on your own website, so this isn't disclosing
+    anything &mdash; but some engagements are old and I'd rather ask than assume. Worth noting these are
+    published case studies, which is a different thing from citing a government contract as a
+    reference.</li>
+    <li><strong>What's the real founding year?</strong> The page currently says "since 2010," which I
+    inferred from "in business over a decade" on your LinkedIn. If it's wrong it needs correcting before
+    launch &mdash; a wrong date is the kind of thing a careful buyer checks.</li>
+    <li><strong>Are 30+ engineers and 90% retention still current?</strong> Both come from your company
+    profile. If either has moved, I'd rather publish the true number; a specific figure that holds up
+    beats a rounder one that doesn't.</li>
+  </ul>
+</div>
+</div></body>
+</html>
